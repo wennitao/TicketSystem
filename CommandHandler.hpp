@@ -35,7 +35,7 @@ public:
         if (strcmp (main_op, "add_user") == 0) {
             add_user () ;
         } else if (strcmp (main_op, "login") == 0) {
-
+            login () ;
         } else if (strcmp (main_op, "logout") == 0) {
 
         }
@@ -53,12 +53,6 @@ public:
         int pos = userio.tellp() ;
         userio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
         return pos ;
-    }
-
-    void add_user (const char *username, const char *password, const char *name, const char *mailAddr, int p) {
-        user cur_user = user (username, password, name, mailAddr, p) ;
-        int pos = user_write (cur_user) ;
-        users.insert (data (username, pos)) ;
     }
 
     void add_user () {
@@ -90,6 +84,34 @@ public:
             if (cur_user.getPrivilege() <= p) throw "no enough privilege" ;
         }
         add_user (username, password, name, mailAddr, p) ;
+    }
+
+    void add_user (const char *username, const char *password, const char *name, const char *mailAddr, int p) {
+        user cur_user = user (username, password, name, mailAddr, p) ;
+        int pos = user_write (cur_user) ;
+        users.insert (data (username, pos)) ;
+    }
+
+    void login () {
+        if (par_cnt != 2) throw "command wrong format" ;
+        char *username, *password ;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 'u') username = par_val[i] ;
+            else if (par_key[i][1] == 'p') password = par_val[i] ;
+            else throw "command wrong format" ;
+        }
+        login (username, password) ;
+    }
+
+    void login (const char *username, const char *password) {
+        vector<int> pos ;
+        users.find (data (username, 0), pos) ;
+        if (pos.empty()) throw "user not found" ;
+        user targ_user = user_read (pos[0]) ;
+        curUsers.find (data (username, 0), pos) ;
+        if (!pos.empty()) throw "already logged in" ;
+        targ_user.login (password) ;
+        curUsers.insert (data (username, 0)) ;
     }
 
 } ;

@@ -30,6 +30,10 @@ public:
         return privilege ;
     }
 
+    void login (const char *_password) {
+        if (strcmp (password, _password) != 0) throw "wrong password" ;
+    }
+
 } ;
 
 ostream& operator << (ostream &out, const user &_user) {
