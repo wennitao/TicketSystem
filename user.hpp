@@ -27,6 +27,10 @@ public:
     }
 
 
+    bool operator < (const user &a) const {
+        return strcmp (username, a.username) < 0 ;
+    }
+
 } ;
 
 ostream& operator << (ostream &out, const user &_user) {
