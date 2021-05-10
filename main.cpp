@@ -7,6 +7,8 @@ using namespace std;
 
 BPlusTree curUsers ("curUsers.dat") ;
 
+fstream userio ("users.dat", ios::in | ios::out | ios::binary) ;
+
 int main() {
     string op ;
     while (getline (cin, op)) {

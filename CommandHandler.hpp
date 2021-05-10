@@ -43,6 +43,13 @@ public:
         }
     }
 
+    
+
+    void add_user (const char *username, const char *password, const char *name, const char *mailAddr, int p) {
+        user cur_user = user (username, password, name, mailAddr, p) ;
+
+    }
+
     void add_user () {
         if (par_cnt != 6) throw "command wrong format" ;
         char *cur_username, *username, *password, *name, *mailAddr ;
@@ -63,7 +70,9 @@ public:
         vector<int> pos ;
         users.find (data (username, 0), pos) ;
         if (!pos.empty()) throw "user already exists" ;
-
+        curUsers.find (data (cur_username, 0), pos) ;
+        if (pos.empty()) throw "current user not logged in" ;
+        add_user (username, password, name, mailAddr, p) ;
     }
 
 } ;
