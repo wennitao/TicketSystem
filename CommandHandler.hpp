@@ -209,6 +209,52 @@ public:
     }
 
     void add_train () {
+        if (par_cnt != 10) throw "command wrong format" ;
+        char stationName[110][30] = {0} ;
+        char *stationID, *stations[110], *startTime, *saleDate, type ;
+        int stationNum = 0, seatNum = 0, prices[110] = {0}, travelTimes[110] = {0}, stopoverTimes[110] = {0};
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 'i') stationID = par_val[i] ;
+            else if (par_key[i][1] == 'n') {
+                int len = strlen (par_val[i]) ;
+                for (int j = 1; j <= len; j ++) stationNum = stationNum * 10 + par_val[i][j] - '0' ;
+            } else if (par_key[i][1] == 'm') {
+                int len = strlen (par_val[i]) ;
+                for (int j = 1; j <= len; j ++) seatNum = seatNum * 10 + par_val[i][j] - '0' ;
+            } else if (par_key[i][1] == 's') {
+                int curid = 1, curlen = 0, cur = 0, len = strlen (par_val[i]) ;
+                for (; cur < len; cur ++) {
+                    if (par_val[i][cur] == '|') curid ++, curlen = 0 ;
+                    else stationName[curid][curlen ++] = par_val[i][cur] ;
+                }
+            } else if (par_key[i][1] == 'p') {
+                int curid = 1, cur = 0, len = strlen (par_val[i]) ;
+                for (; cur < len; cur ++) {
+                    if (par_val[i][cur] == '|') curid ++ ;
+                    else prices[curid] = prices[curid] * 10 + par_val[i][cur] - '0' ;
+                }
+            } else if (par_key[i][1] == 'x') {
+                startTime = par_val[i] ;
+            } else if (par_key[i][1] == 't') {
+                int curid = 1, cur = 0, len = strlen (par_val[i]) ;
+                for (; cur < len; cur ++) {
+                    if (par_val[i][cur] == '|') curid ++ ;
+                    else travelTimes[curid] = travelTimes[curid] * 10 + par_val[i][cur] - '0' ;
+                }
+            } else if (par_key[i][1] == 'o') {
+                int curid = 1, cur = 0, len = strlen (par_val[i]) ;
+                for (; cur < len; cur ++) {
+                    if (par_val[i][cur] == '|') curid ++ ;
+                    else stopoverTimes[curid] = stopoverTimes[curid] * 10 + par_val[i][cur] - '0' ;
+                }
+            } else if (par_key[i][1] == 'd') {
+                saleDate = par_val[i] ;
+            } else if (par_key[i][1] == 'y') {
+                type = par_val[i][0] ;
+            }
+        }
+        for (int i = 1; i <= stationNum; i ++) stations[i] = stationName[i] ;
+
         
     }
 
