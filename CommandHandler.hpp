@@ -46,6 +46,9 @@ public:
                 query_profile() ;
             } else if (strcmp (main_op, "modify_profile") == 0) {
                 modify_profile() ;
+            } else if (strcmp (main_op, "exit") == 0) {
+                printf("bye\n") ;
+                exit (0) ;
             }
             
         } catch (...) {
@@ -143,7 +146,7 @@ public:
         vector<int> pos ;
         curUsers.find (data (username, 0), pos) ;
         if (pos.empty()) throw "not logged in" ;
-        curUsers.erase (data (username, 0)) ;
+        curUsers.erase (data (username, pos[0])) ;
     }
 
     void query_profile () {
@@ -162,14 +165,14 @@ public:
         users.find (data (username, 0), pos) ;
         if (pos.empty()) throw "user not exists" ;
         user targ_user = user_read (pos[0]) ;
-        if (cur_user.getPrivilege() < targ_user.getPrivilege()) throw "no enough privilege" ;
+        if (cur_user.getPrivilege() <= targ_user.getPrivilege() && strcmp (cur_username, username) != 0) throw "no enough privilege" ;
         cout << targ_user << endl ;
     }
 
     void modify_profile () {
         if (par_cnt < 2 || par_cnt > 6) throw "command wrong format" ; 
         bool c = 0, u = 0 ;
-        char *cur_username, *username, *password, *name, *mailAddr; int p = -1 ;
+        char *cur_username = nullptr, *username = nullptr, *password = nullptr, *name = nullptr, *mailAddr = nullptr; int p = -1 ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'c') c = 1, cur_username = par_val[i] ;
             else if (par_key[i][1] == 'u') u = 1, username = par_val[i] ;
@@ -194,7 +197,7 @@ public:
         users.find (data (username, 0), pos) ;
         if (pos.empty()) throw "user not exists" ;
         user targ_user = user_read (pos[0]) ;
-        if (cur_user.getPrivilege() < targ_user.getPrivilege() || cur_user.getPrivilege() <= p) throw "privilege invalid" ;
+        if ((cur_user.getPrivilege() <= targ_user.getPrivilege() && strcmp (cur_username, username) != 0) || cur_user.getPrivilege() <= p) throw "privilege invalid" ;
 
         if (password) targ_user.updatePassword (password) ;
         if (name) targ_user.updateName (name) ;
