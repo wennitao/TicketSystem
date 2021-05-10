@@ -37,7 +37,7 @@ public:
         } else if (strcmp (main_op, "login") == 0) {
             login () ;
         } else if (strcmp (main_op, "logout") == 0) {
-
+            logout () ;
         }
     }
 
@@ -108,10 +108,16 @@ public:
         users.find (data (username, 0), pos) ;
         if (pos.empty()) throw "user not found" ;
         user targ_user = user_read (pos[0]) ;
+        pos.clear() ;
         curUsers.find (data (username, 0), pos) ;
         if (!pos.empty()) throw "already logged in" ;
-        targ_user.login (password) ;
+        targ_user.login (password) ; 
         curUsers.insert (data (username, 0)) ;
+    }
+
+    void logout () {
+        if (par_cnt != 1) throw "command wrong format" ;
+        
     }
 
 } ;
