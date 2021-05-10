@@ -49,8 +49,9 @@ public:
             } else if (strcmp (main_op, "exit") == 0) {
                 printf("bye\n") ;
                 exit (0) ;
+            } else if (strcmp (main_op, "add_train") == 0) {
+                add_train () ;
             }
-            
         } catch (...) {
             printf("-1\n") ;
         }
@@ -205,6 +206,10 @@ public:
         if (p != -1) targ_user.updatePrivilege (p) ;
         user_write (pos[0], targ_user) ;
         cout << targ_user << endl ;
+    }
+
+    void add_train () {
+        
     }
 
 } ;
