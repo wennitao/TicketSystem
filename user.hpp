@@ -26,7 +26,6 @@ public:
         privilege = p ;
     }
 
-
     bool operator < (const user &a) const {
         return strcmp (username, a.username) < 0 ;
     }
