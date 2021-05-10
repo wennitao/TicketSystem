@@ -25,12 +25,7 @@ int main() {
     string op ;
     while (getline (cin, op)) {
         CommandHandler ch (op) ;
-        try {
-            ch.run() ;
-            printf("0\n") ;
-        } catch (...) {
-            printf("-1\n") ;
-        }
+        ch.run () ;
     }
     userio.close() ;
     return 0 ;

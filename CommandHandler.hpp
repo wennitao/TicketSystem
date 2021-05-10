@@ -31,13 +31,26 @@ public:
     }
 
     void run () {
-        analyze() ;
-        if (strcmp (main_op, "add_user") == 0) {
-            add_user () ;
-        } else if (strcmp (main_op, "login") == 0) {
-            login () ;
-        } else if (strcmp (main_op, "logout") == 0) {
-            logout () ;
+        try {
+            analyze() ;
+            if (strcmp (main_op, "add_user") == 0) {
+                add_user () ;
+                printf("0\n") ;
+            } else if (strcmp (main_op, "login") == 0) {
+                login () ;
+                printf("0\n") ;
+            } else if (strcmp (main_op, "logout") == 0) {
+                logout () ;
+                printf("0\n") ;
+            } else if (strcmp (main_op, "query_profile") == 0) {
+                query_profile() ;
+            } else if (strcmp (main_op, "modify_profile") == 0) {
+                modify_profile() ;
+                printf("0\n") ;
+            }
+            
+        } catch (...) {
+            printf("-1\n") ;
         }
     }
 
@@ -117,7 +130,40 @@ public:
 
     void logout () {
         if (par_cnt != 1) throw "command wrong format" ;
-        
+        if (par_key[1][1] != 'u') throw "command wrong format" ;
+        char *username = par_val[1] ;
+        logout (username) ;
+    }
+
+    void logout (char *username) {
+        vector<int> pos ;
+        curUsers.find (data (username, 0), pos) ;
+        if (pos.empty()) throw "not logged in" ;
+        curUsers.erase (data (username, 0)) ;
+    }
+
+    void query_profile () {
+        if (par_cnt != 2) throw "command wrong format" ;
+        char *cur_username, *username ;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 'c') cur_username = par_val[i] ;
+            else if (par_key[i][1] == 'u') username = par_val[i] ;
+            else throw "command wrong format" ;
+        }
+        vector<int> pos ;
+        curUsers.find (data (cur_username, 0), pos) ;
+        if (pos.empty()) throw "not logged in" ;
+        user cur_user = user_read (pos[0]) ;
+        pos.clear() ;
+        users.find (data (username, 0), pos) ;
+        if (pos.empty()) throw "user not exists" ;
+        user targ_user = user_read (pos[0]) ;
+        if (cur_user.getPrivilege() < targ_user.getPrivilege()) throw "no enough privilege" ;
+        cout << targ_user << endl ;
+    }
+
+    void modify_profile () {
+
     }
 
 } ;

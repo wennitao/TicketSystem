@@ -37,7 +37,7 @@ public:
 } ;
 
 ostream& operator << (ostream &out, const user &_user) {
-    out << "username:" << _user.username << " password:" << _user.password << " name:" << _user.name << " mailAddress:" << _user.mailAddr << " privilege:" << _user.privilege ;
+    out << _user.username << " " << _user.name << " " << _user.mailAddr << " " << _user.privilege ;
     return out ;
 }
 
