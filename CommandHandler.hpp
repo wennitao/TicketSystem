@@ -12,8 +12,6 @@
 
 using namespace std;
 
-BPlusTree users ("users_B+Tree.dat") ;
-
 class CommandHandler {
 private:
     stringstream command ;
@@ -34,20 +32,27 @@ public:
 
     void run () {
         analyze() ;
-        if (strcmp (main_op, "add_user")) {
+        if (strcmp (main_op, "add_user") == 0) {
             add_user () ;
-        } else if (strcmp (main_op, "login")) {
+        } else if (strcmp (main_op, "login") == 0) {
 
-        } else if (strcmp (main_op, "logout")) {
+        } else if (strcmp (main_op, "logout") == 0) {
 
         }
     }
 
-    
+    int user_write (user &cur) {
+        userio.seekp (0, ios::end) ;
+        int pos = userio.tellp() ;
+        userio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
+        return pos ;
+    }
 
     void add_user (const char *username, const char *password, const char *name, const char *mailAddr, int p) {
+        printf("add user\n") ;
         user cur_user = user (username, password, name, mailAddr, p) ;
-
+        int pos = user_write (cur_user) ;
+        users.insert (data (username, pos)) ;
     }
 
     void add_user () {
@@ -67,11 +72,15 @@ public:
                 throw "command wrong format" ;
             }
         }
-        vector<int> pos ;
-        users.find (data (username, 0), pos) ;
-        if (!pos.empty()) throw "user already exists" ;
-        curUsers.find (data (cur_username, 0), pos) ;
-        if (pos.empty()) throw "current user not logged in" ;
+        if (users.empty()) {
+            p = 10 ;
+        } else {
+            vector<int> pos ;
+            users.find (data (username, 0), pos) ;
+            if (!pos.empty()) throw "user already exists" ;
+            curUsers.find (data (cur_username, 0), pos) ;
+            if (pos.empty()) throw "current user not logged in" ;
+        }
         add_user (username, password, name, mailAddr, p) ;
     }
 

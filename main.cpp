@@ -5,6 +5,7 @@
 #include "Database/B+Tree.hpp"
 using namespace std;
 
+BPlusTree users ("users_B+Tree.dat") ;
 BPlusTree curUsers ("curUsers.dat") ;
 
 fstream userio ("users.dat", ios::in | ios::out | ios::binary) ;
@@ -15,5 +16,6 @@ int main() {
         CommandHandler ch (op) ;
         ch.run() ;
     }
+    userio.close() ;
     return 0 ;
 }

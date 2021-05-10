@@ -58,6 +58,10 @@ public:
         io.close() ;
     }
 
+    bool empty() {
+        return disk_read (root).keyCnt == 0 ;
+    }
+
     void print (int v) {
         node cur = disk_read (v) ;
         printf("pos:%d\n", v) ;
