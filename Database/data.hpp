@@ -1,10 +1,11 @@
 #ifndef data_type
 #define data_type
 
+#include <cstdio>
 #include <cstring>
 
 struct data {
-    char str[110]; int pos ;
+    char str[25]; int pos ;
     data () {
         memset (str, 0, sizeof str) ;
         pos = -1 ;
