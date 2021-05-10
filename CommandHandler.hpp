@@ -46,7 +46,6 @@ public:
                 query_profile() ;
             } else if (strcmp (main_op, "modify_profile") == 0) {
                 modify_profile() ;
-                printf("0\n") ;
             }
             
         } catch (...) {
@@ -66,6 +65,11 @@ public:
         int pos = userio.tellp() ;
         userio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
         return pos ;
+    }
+
+    void user_write (int pos, user &cur) {
+        userio.seekp (pos, ios::beg) ;
+        userio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
     }
 
     void add_user () {
@@ -120,12 +124,12 @@ public:
         vector<int> pos ;
         users.find (data (username, 0), pos) ;
         if (pos.empty()) throw "user not found" ;
-        user targ_user = user_read (pos[0]) ;
+        user targ_user = user_read (pos[0]); int targ_pos = pos[0] ;
         pos.clear() ;
         curUsers.find (data (username, 0), pos) ;
         if (!pos.empty()) throw "already logged in" ;
         targ_user.login (password) ; 
-        curUsers.insert (data (username, 0)) ;
+        curUsers.insert (data (username, targ_pos)) ;
     }
 
     void logout () {
@@ -163,7 +167,41 @@ public:
     }
 
     void modify_profile () {
+        if (par_cnt < 2 || par_cnt > 6) throw "command wrong format" ; 
+        bool c = 0, u = 0 ;
+        char *cur_username, *username, *password, *name, *mailAddr; int p = -1 ;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 'c') c = 1, cur_username = par_val[i] ;
+            else if (par_key[i][1] == 'u') u = 1, username = par_val[i] ;
+            else if (par_key[i][1] == 'p') password = par_val[i] ;
+            else if (par_key[i][1] == 'n') name = par_val[i] ;
+            else if (par_key[i][1] == 'm') mailAddr = par_val[i] ;
+            else if (par_key[i][1] == 'g') {
+                p = 0 ;
+                int len = strlen (par_val[i]) ;
+                for (int j = 0; j < len; j ++) p = p * 10 + par_val[i][j] - '0' ;
+            } else {
+                throw "command wrong format" ;
+            }
+        }
+        if (!c || !u) throw "command wrong format" ;
 
+        vector<int> pos ;
+        curUsers.find (data (cur_username, 0), pos) ;
+        if (pos.empty()) throw "user not logged in" ;
+        user cur_user = user_read (pos[0]) ;
+        pos.clear() ;
+        users.find (data (username, 0), pos) ;
+        if (pos.empty()) throw "user not exists" ;
+        user targ_user = user_read (pos[0]) ;
+        if (cur_user.getPrivilege() < targ_user.getPrivilege() || cur_user.getPrivilege() <= p) throw "privilege invalid" ;
+
+        if (password) targ_user.updatePassword (password) ;
+        if (name) targ_user.updateName (name) ;
+        if (mailAddr) targ_user.updateMailAddress (mailAddr) ;
+        if (p != -1) targ_user.updatePrivilege (p) ;
+        user_write (pos[0], targ_user) ;
+        cout << targ_user << endl ;
     }
 
 } ;

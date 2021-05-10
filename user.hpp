@@ -34,6 +34,22 @@ public:
         if (strcmp (password, _password) != 0) throw "wrong password" ;
     }
 
+    void updatePassword (const char *_password) {
+        strcpy (password, _password) ;
+    }
+
+    void updateName (const char *_name) {
+        strcpy (name, _name) ;
+    }
+
+    void updateMailAddress (const char *_mailAddr) {
+        strcpy (mailAddr, _mailAddr) ;
+    }
+
+    void updatePrivilege (int p) {
+        privilege = p ;
+    }
+
 } ;
 
 ostream& operator << (ostream &out, const user &_user) {
