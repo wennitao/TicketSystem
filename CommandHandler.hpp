@@ -8,8 +8,11 @@
 
 #include "Database/B+Tree.hpp"
 #include "user.hpp"
+#include "main.h"
 
 using namespace std;
+
+BPlusTree users ("users_B+Tree.dat") ;
 
 class CommandHandler {
 private:
@@ -22,8 +25,6 @@ public:
     CommandHandler (string op) {
         command = stringstream (op) ;
     }
-
-    void add_user () ;
 
     void analyze () {
         command >> main_op ;
@@ -59,7 +60,9 @@ public:
                 throw "command wrong format" ;
             }
         }
-        user cur_user = user (username, password, name, mailAddr, p) ;
+        vector<int> pos ;
+        users.find (data (username, 0), pos) ;
+        if (!pos.empty()) throw "user already exists" ;
 
     }
 
