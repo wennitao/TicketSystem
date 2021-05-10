@@ -52,6 +52,7 @@ public:
         }
         in.close() ;
         io.open (file, ios::in | ios::out | ios::binary) ;
+        //cout << "check " << io.is_open() << " " << io.good() << endl ;
     }
 
     ~BPlusTree () {
@@ -59,7 +60,7 @@ public:
     }
 
     bool empty() {
-        return disk_read (root).keyCnt == 0 ;
+        return root == -1 || disk_read (root).keyCnt == 0 ;
     }
 
     void print (int v) {

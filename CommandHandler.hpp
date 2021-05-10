@@ -41,6 +41,13 @@ public:
         }
     }
 
+    user user_read (int pos) {
+        userio.seekg (pos, ios::beg) ;
+        user cur ;
+        userio.read (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
+        return cur ;
+    }
+
     int user_write (user &cur) {
         userio.seekp (0, ios::end) ;
         int pos = userio.tellp() ;
@@ -49,7 +56,6 @@ public:
     }
 
     void add_user (const char *username, const char *password, const char *name, const char *mailAddr, int p) {
-        printf("add user\n") ;
         user cur_user = user (username, password, name, mailAddr, p) ;
         int pos = user_write (cur_user) ;
         users.insert (data (username, pos)) ;
@@ -80,6 +86,8 @@ public:
             if (!pos.empty()) throw "user already exists" ;
             curUsers.find (data (cur_username, 0), pos) ;
             if (pos.empty()) throw "current user not logged in" ;
+            user cur_user = user_read (pos[0]) ;
+            if (cur_user.getPrivilege() <= p) throw "no enough privilege" ;
         }
         add_user (username, password, name, mailAddr, p) ;
     }
