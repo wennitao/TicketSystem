@@ -6,12 +6,13 @@
 #include <fstream>
 #include <algorithm>
 
-#include "data.hpp"
+//#include "data.hpp"
 
 using namespace std;
 
 const int size = 30 ;
 
+template<class data>
 class BPlusTree {
 private:
     
