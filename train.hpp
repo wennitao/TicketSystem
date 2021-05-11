@@ -43,6 +43,20 @@ public:
         released = 1 ;
     }
 
+    bool runningOnDate (const Date &_date) {
+        return saleDate[1] <= _date && _date <= saleDate[2] ;
+    }
+
+    void print () {
+        cout << trainID << " " << type << endl ;
+        for (int i = 1; i <= stationNum; i ++) {
+            cout << stations[i] << " " ;
+            if (i == 1) cout << "xx-xx xx:xx -> " << ;
+            else if (i == stationNum) cout << ""
+            else 
+        }
+    }
+
 } ;
 
 #endif

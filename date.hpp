@@ -19,9 +19,12 @@ public:
         m = (_date[0] - '0') * 10 + (_date[1] - '0') ;
         d = (_date[3] - '0') * 10 + (_date[4] - '0') ;
     }
-
     Date operator = (const Date &_date) {
         m = _date.m; d = _date.d ;
+    }
+    bool operator <= (const Date &_date) const {
+        if (m == _date.m) return d <= _date.d ;
+        return m <= _date.m ;
     }
 } ;
 

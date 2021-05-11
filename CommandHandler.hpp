@@ -307,16 +307,18 @@ public:
 
     void query_train () {
         if (par_cnt != 2) throw "command wrong format" ;
-        char *trainID, *date ;
+        char *trainID ;
+        Date date ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
-            else if (par_key[i][1] == 'd') date = par_val[i] ;
+            else if (par_key[i][1] == 'd') date = Date (par_val[i]) ;
         }
         vector<int> pos ;
         trains.find (data (trainID, 0), pos) ;
         if (pos.empty()) throw "train not exists" ;
         train cur = train_read (pos[0]) ;
-        
+        if (!cur.runningOnDate (date)) throw "train not runs on this date" ;
+        cur.print () ;
     }
 
 } ;
