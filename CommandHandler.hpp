@@ -8,7 +8,6 @@
 
 #include "Database/B+Tree.hpp"
 #include "time.hpp"
-#include "date.hpp"
 #include "user.hpp"
 #include "train.hpp"
 #include "main.h"
@@ -236,8 +235,7 @@ public:
 
     void add_train () {
         if (par_cnt != 10) throw "command wrong format" ;
-        Date saleDate[3] ;
-        Time startTime ;
+        Time saleDate[3], startTime ;
         char stationName[110][30] = {0} ;
         char *trainID, type ;
         int stationNum = 0, seatNum = 0, prices[110] = {0}, travelTimes[110] = {0}, stopoverTimes[110] = {0};
@@ -262,7 +260,7 @@ public:
                     else prices[curid] = prices[curid] * 10 + par_val[i][cur] - '0' ;
                 }
             } else if (par_key[i][1] == 'x') {
-                startTime = Time (par_val[i]) ;
+                startTime = Time ("00-00", par_val[i]) ;
             } else if (par_key[i][1] == 't') {
                 int curid = 1, cur = 0, len = strlen (par_val[i]) ;
                 for (; cur < len; cur ++) {
@@ -278,9 +276,9 @@ public:
             } else if (par_key[i][1] == 'd') {
                 char tmp[10] = {0} ;
                 for (int j = 0; j < 5; j ++) tmp[j] = par_val[i][j] ;
-                saleDate[1] = Date (tmp) ;
+                saleDate[1] = Time (tmp, "00:00") ;
                 for (int j = 6; j < 11; j ++) tmp[j - 6] = par_val[i][j] ;
-                saleDate[2] = Date (tmp) ;
+                saleDate[2] = Time (tmp, "00:00") ;
             } else if (par_key[i][1] == 'y') {
                 type = par_val[i][0] ;
             }
@@ -308,17 +306,17 @@ public:
     void query_train () {
         if (par_cnt != 2) throw "command wrong format" ;
         char *trainID ;
-        Date date ;
+        Time date ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
-            else if (par_key[i][1] == 'd') date = Date (par_val[i]) ;
+            else if (par_key[i][1] == 'd') date = Time (par_val[i], "00:00") ;
         }
         vector<int> pos ;
         trains.find (data (trainID, 0), pos) ;
         if (pos.empty()) throw "train not exists" ;
         train cur = train_read (pos[0]) ;
         if (!cur.runningOnDate (date)) throw "train not runs on this date" ;
-        cur.print () ;
+        cur.print (date) ;
     }
 
 } ;
