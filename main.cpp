@@ -40,5 +40,7 @@ int main() {
         ch.run () ;
     }
     userio.close() ;
+    trainio.close() ;
+    system ("rm -rf curUsers.dat") ;
     return 0 ;
 }

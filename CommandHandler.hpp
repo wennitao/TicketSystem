@@ -7,6 +7,8 @@
 #include <sstream>
 
 #include "Database/B+Tree.hpp"
+#include "time.hpp"
+#include "date.hpp"
 #include "user.hpp"
 #include "train.hpp"
 #include "main.h"
@@ -234,8 +236,10 @@ public:
 
     void add_train () {
         if (par_cnt != 10) throw "command wrong format" ;
+        Date saleDate[3] ;
+        Time startTime ;
         char stationName[110][30] = {0} ;
-        char *trainID, *startTime, *saleDate, type ;
+        char *trainID, type ;
         int stationNum = 0, seatNum = 0, prices[110] = {0}, travelTimes[110] = {0}, stopoverTimes[110] = {0};
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
@@ -258,7 +262,7 @@ public:
                     else prices[curid] = prices[curid] * 10 + par_val[i][cur] - '0' ;
                 }
             } else if (par_key[i][1] == 'x') {
-                startTime = par_val[i] ;
+                startTime = Time (par_val[i]) ;
             } else if (par_key[i][1] == 't') {
                 int curid = 1, cur = 0, len = strlen (par_val[i]) ;
                 for (; cur < len; cur ++) {
@@ -272,7 +276,11 @@ public:
                     else stopoverTimes[curid] = stopoverTimes[curid] * 10 + par_val[i][cur] - '0' ;
                 }
             } else if (par_key[i][1] == 'd') {
-                saleDate = par_val[i] ;
+                char tmp[10] = {0} ;
+                for (int j = 0; j < 5; j ++) tmp[j] = par_val[i][j] ;
+                saleDate[1] = Date (tmp) ;
+                for (int j = 6; j < 11; j ++) tmp[j - 6] = par_val[i][j] ;
+                saleDate[2] = Date (tmp) ;
             } else if (par_key[i][1] == 'y') {
                 type = par_val[i][0] ;
             }
@@ -297,7 +305,19 @@ public:
         train_write (pos[0], cur) ;
     }
 
-
+    void query_train () {
+        if (par_cnt != 2) throw "command wrong format" ;
+        char *trainID, *date ;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 'i') trainID = par_val[i] ;
+            else if (par_key[i][1] == 'd') date = par_val[i] ;
+        }
+        vector<int> pos ;
+        trains.find (data (trainID, 0), pos) ;
+        if (pos.empty()) throw "train not exists" ;
+        train cur = train_read (pos[0]) ;
+        
+    }
 
 } ;
 
