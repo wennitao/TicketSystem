@@ -8,6 +8,7 @@
 
 #include "Database/B+Tree.hpp"
 #include "user.hpp"
+#include "train.hpp"
 #include "main.h"
 
 using namespace std;
@@ -51,6 +52,10 @@ public:
                 exit (0) ;
             } else if (strcmp (main_op, "add_train") == 0) {
                 add_train () ;
+            } else if (strcmp (main_op, "release_train") == 0) {
+                release_train() ;
+            } else if (strcmp (main_op, "query_train") == 0) {
+                query_train() ;
             }
         } catch (...) {
             printf("-1\n") ;
@@ -74,6 +79,25 @@ public:
     void user_write (int pos, user &cur) {
         userio.seekp (pos, ios::beg) ;
         userio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
+    }
+
+    train train_read (int pos) {
+        trainio.seekg (pos, ios::beg) ;
+        train cur ;
+        trainio.read (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
+        return cur ;
+    }
+
+    int train_write (train &cur) {
+        trainio.seekp (0, ios::end) ;
+        int pos = trainio.tellp() ;
+        trainio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
+        return pos ;
+    }
+
+    void train_write (int pos, train &cur) {
+        trainio.seekp (pos, ios::beg) ;
+        trainio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
     }
 
     void add_user () {
@@ -211,10 +235,10 @@ public:
     void add_train () {
         if (par_cnt != 10) throw "command wrong format" ;
         char stationName[110][30] = {0} ;
-        char *stationID, *stations[110], *startTime, *saleDate, type ;
+        char *trainID, *startTime, *saleDate, type ;
         int stationNum = 0, seatNum = 0, prices[110] = {0}, travelTimes[110] = {0}, stopoverTimes[110] = {0};
         for (int i = 1; i <= par_cnt; i ++) {
-            if (par_key[i][1] == 'i') stationID = par_val[i] ;
+            if (par_key[i][1] == 'i') trainID = par_val[i] ;
             else if (par_key[i][1] == 'n') {
                 int len = strlen (par_val[i]) ;
                 for (int j = 1; j <= len; j ++) stationNum = stationNum * 10 + par_val[i][j] - '0' ;
@@ -253,10 +277,27 @@ public:
                 type = par_val[i][0] ;
             }
         }
-        for (int i = 1; i <= stationNum; i ++) stations[i] = stationName[i] ;
 
-        
+        train cur_train = train (trainID, stationName, startTime, saleDate, type, stationNum, seatNum, prices, travelTimes, stopoverTimes) ;
+        vector<int> pos ;
+        trains.find (data (trainID, 0), pos) ;
+        if (!pos.empty()) throw "train already exists" ;
+        int write_pos = train_write (cur_train) ;
+        trains.insert (data (trainID, write_pos)) ;
     }
+
+    void release_train () {
+        if (par_cnt != 1 || par_key[1][1] != 'i') throw "command wrong format" ;
+        char *trainID = par_val[1] ;
+        vector<int> pos ;
+        trains.find (data (trainID, 0), pos) ;
+        if (pos.empty()) throw "train not exists" ;
+        train cur = train_read (pos[0]) ;
+        cur.release() ;
+        train_write (pos[0], cur) ;
+    }
+
+
 
 } ;
 
