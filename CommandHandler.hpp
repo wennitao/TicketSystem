@@ -344,7 +344,13 @@ public:
         }
     }
 
-    bool cmp_
+    bool cmp_time (const ticket &a, const ticket &b) const {
+
+    }
+
+    bool cmp_cost (const ticket &a, const ticket &b) const {
+        
+    }
 
     void query_ticket () {
         if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
@@ -387,7 +393,10 @@ public:
         }
 
         if (priority) {
-            if (strcmp (priority, "time") == 0) 
+            if (strcmp (priority, "time") == 0)
+                sort (tickets, tickets + ticket_cnt, cmp_time) ;
+            else
+                sort (tickets, tickets + ticket_cnt, cmp_cost) ;
         }
     }
 
