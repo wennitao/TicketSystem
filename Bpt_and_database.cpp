@@ -4,8 +4,10 @@
 
 #include "Bpt_and_database.h"
 #include <iostream>
+#include <cstdio>
 #include <cstring>
 #include <string>
+#include <vector>
 using namespace std;
 void Database::node::print() {
     cout << "is_leaf: " << is_leaf << " keycnt: " << keycnt << " fa: " << fa << endl << "son: ";
@@ -44,11 +46,51 @@ pair<int, int> Database::find(int nod, const data &x) {
     if (cur.is_leaf){
         if (pos < cur.keycnt && cur.key[pos] == x)return make_pair(nod , pos);
         else return make_pair(-1 , -1);
+    } else{
+        if (pos == cur.keycnt || x < cur.key[pos])return find(cur.son[pos] , x);
+        else return find(cur.son[pos + 1] , x);
     }
 };
-void Database::find(const data &x, vector<int> &cap) {};
-void Database::find(int nod, const data &x, vector<int> &cap) {};
-int Database::search(int nod, const data &x) {};
+void Database::find(const data &x, vector<int> &cap) {
+    find (root , x , cap);
+};
+void Database::find(int nod, const data &x, vector<int> &cap) {
+    if (nod == -1) return;
+    node cur = disk_read(nod);
+    int pos = 0;
+    for (;pos < cur.keycnt && cur.key[pos] < x ; pos ++);
+    if (cur.is_leaf){
+        for (int i = pos ; i < cur.keycnt; ++i) {
+            if (strcmp(cur.key[i].str , x.str) == 0)cap.push_back(cur.key[i].pos);
+            else return;
+        }
+    } else{
+        if (pos == cur.keycnt || strcmp(x.str , cur.key[pos].str) < 0)find(cur.son[pos] , x , cap);
+        else {
+            vector<int> tmp;
+            find (cur.son[pos] , x ,tmp);
+            for (int i : tmp) {
+                cap.push_back(i);
+            }
+            for(; pos < cur.keycnt && strcmp(cur.key[pos].str , x.str) == 0 ; ++pos){
+                tmp.clear();
+                find(cur.son[pos + 1] , x , tmp);
+                for (int i : tmp) {
+                    cap.push_back(i);
+                }
+            }
+        }
+    }
+};
+int Database::search(int nod, const data &x) {//find the leaf_node where can inseert x
+    node cur = disk_read(nod);
+    if (cur.is_leaf)return nod;
+    int pos = 0;
+    for (; pos < cur.keycnt && cur.key[pos] < x ; ++pos);
+    if (pos == cur.keycnt || x < cur.key[pos])
+        return search(cur.son[pos] , x);
+    else return search(cur.son[pos + 1] , x);
+};
 void Database::clear(data &tmp) {
     memset(tmp.str , 0 , sizeof(tmp.str));
     tmp.pos = -1;

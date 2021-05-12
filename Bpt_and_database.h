@@ -13,7 +13,7 @@
 
 using namespace std;
 const int size = 10;
-const int maxkey = size - 1;
+const int maxkey = size - 1;//单个节点最多能存多少key
 class Database {
 private:
     struct node{
@@ -24,7 +24,6 @@ private:
         int rbro;
         int son[size + 3]{};
         data key[size + 1];
-
         node(){
             is_leaf = true;
             keycnt = 0;
@@ -34,6 +33,7 @@ private:
             for (int & i : son) {
                 i = -1;
             }
+
         }
         void print();
     };
