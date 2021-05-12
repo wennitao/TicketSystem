@@ -371,14 +371,7 @@ public:
             }
         }
 
-        int train_cnt = 0 ;
-        train *trains = new train[train_pos.size()] ;
-        for (int i = 0; i < train_pos.size(); i ++) {
-            train cur_train = train_read (train_pos[i]) ;
-            if (!cur_train.runningOnDate (date)) continue ;
-            trains[train_cnt ++] = cur_train ;
-        }
-
+        
         
     }
 
