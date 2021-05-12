@@ -7,6 +7,7 @@ using namespace std;
 
 BPlusTree users ("users_B+Tree.dat") ;
 BPlusTree trains ("trains_B+Tree.dat") ;
+BPlusTree trainStations ("trainStations_B+Tree.dat") ;
 BPlusTree curUsers ("curUsers.dat") ;
 
 fstream userio, trainio ;

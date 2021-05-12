@@ -35,6 +35,11 @@ public:
         if (res.day > days[res.month]) res.day -= days[res.month], res.month ++ ;
         return res ;
     }
+    int operator - (const Time &_time) const {
+        int res = day - _time.day ;
+        for (int i = _time.month; i < month; i ++) res += days[i] ;
+        return res ;
+    }
     bool operator <= (const Time &_time) const {
         if (month == _time.month && day == _time.day && h == _time.h) return m <= _time.m ;
         if (month == _time.month && day == _time.day) return h <= _time.h ;

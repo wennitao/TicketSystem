@@ -13,7 +13,7 @@ class train {
 private:
     Time saleDate[3], startTime ;
     char trainID[25], stations[110][35], type ;
-    int stationNum, seatNum, prices[110], travelTimes[110], stopoverTimes[110], seat[110] ;
+    int stationNum, seatNum, prices[110], travelTimes[110], stopoverTimes[110], seat[110][110] ;
     bool released = 0 ;
 
 public:
@@ -29,7 +29,10 @@ public:
         for (int i = 1; i < stationNum; i ++) travelTimes[i] = _travelTimes[i] ;
         for (int i = 2; i <= stationNum - 1; i ++) stopoverTimes[i] = _stopoverTimes[i] ;
         released = 0 ;
-        for (int i = 1; i <= stationNum; i ++) seat[i] = seatNum ;
+        int days = _saleDate[2] - _saleDate[1] ;
+        for (int i = 1; i <= days; i ++)
+            for (int j = 1; j <= stationNum; j ++)
+                seat[i][j] = seatNum ;
     }
 
     bool getReleaseStatus () const {
@@ -39,6 +42,14 @@ public:
     void release () {
         if (released) throw "already released" ;
         released = 1 ;
+    }
+
+    int getStationNum () const {
+        return stationNum ;
+    }
+
+    const char* getStationName (int id) const {
+        return stations[id] ;
     }
 
     bool runningOnDate (const Time &_date) {

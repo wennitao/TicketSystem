@@ -57,6 +57,10 @@ public:
                 release_train() ;
             } else if (strcmp (main_op, "query_train") == 0) {
                 query_train() ;
+            } else if (strcmp (main_op, "delete_train") == 0) {
+                delete_train() ;
+            } else if (strcmp (main_op, "query_ticket") == 0) {
+                query_ticket () ;
             }
         } catch (...) {
             printf("-1\n") ;
@@ -290,6 +294,10 @@ public:
         if (!pos.empty()) throw "train already exists" ;
         int write_pos = train_write (cur_train) ;
         trains.insert (data (trainID, write_pos)) ;
+
+        for (int i = 1; i <= stationNum; i ++) {
+            trainStations.insert (data (stationName[i], write_pos)) ;
+        }
     }
 
     void release_train () {
@@ -317,6 +325,61 @@ public:
         train cur = train_read (pos[0]) ;
         if (!cur.runningOnDate (date)) throw "train not runs on this date" ;
         cur.print (date) ;
+    }
+
+    void delete_train () {
+        if (par_cnt != 1 || par_key[1][1] != 'i') throw "command wrong format" ;
+        char *trainID = par_val[1] ;
+        vector<int> pos ;
+        trains.find (data (trainID, 0), pos) ;
+        if (pos.empty()) throw "train not found" ;
+        train cur_train = train_read (pos[0]) ;
+        if (cur_train.getReleaseStatus()) throw "already released" ;
+        trains.erase (data (trainID, pos[0])) ;
+
+        int stationNum = cur_train.getStationNum() ;
+        for (int i = 1; i <= stationNum; i ++) {
+            trainStations.erase (data (cur_train.getStationName (i), pos[0])) ;
+        }
+    }
+
+    void query_ticket () {
+        if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
+        Time date ;
+        char *startStationName, *terminalStationName, *priority = nullptr;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 's') startStationName = par_val[i] ;
+            else if (par_key[i][1] == 't') terminalStationName = par_val[i] ;
+            else if (par_key[i][1] == 'd') date = Time (par_val[i], "00:00") ;
+            else priority = par_val[i] ;
+        }
+
+        vector<int> start_pos, end_pos, train_pos ;
+        trainStations.find (data (startStationName, 0), start_pos) ;
+        trainStations.find (data (terminalStationName, 0), end_pos) ;
+        //sort replace to diy_sort
+        sort (start_pos.begin(), start_pos.end()) ;
+        sort (end_pos.begin(), end_pos.end()) ;
+
+        int start_id = 0, end_id = 0 ;
+        while (start_id < start_pos.size() && end_id < end_pos.size()) {
+            if (start_pos[start_id] < end_pos[end_id]) start_id ++ ;
+            else if (start_pos[start_id] > end_pos[end_id]) end_id ++ ;
+            else {
+                train_pos.push_back (start_pos[start_id]) ;
+                start_id ++; end_id ++ ;
+            }
+        }
+
+        int train_cnt = 0 ;
+        train *trains = new train[train_pos.size()] ;
+        for (int i = 0; i < train_pos.size(); i ++) {
+            train cur_train = train_read (train_pos[i]) ;
+            if (!cur_train.runningOnDate (date)) continue ;
+            trains[train_cnt ++] = cur_train ;
+        }
+
+        
     }
 
 } ;
