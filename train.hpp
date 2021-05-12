@@ -44,6 +44,10 @@ public:
         released = 1 ;
     }
 
+    const char* getTrainID () const {
+        return trainID ;
+    }
+
     int getStationNum () const {
         return stationNum ;
     }
@@ -77,6 +81,45 @@ public:
                 cur_price += prices[i] ;
             }
         }
+    }
+
+    Time leavingTime (const Time &begin_time, const char *station) {
+        Time res = begin_time ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], station) == 0) return res + stopoverTimes[i] ;
+            res = res + travelTimes[i] + stopoverTimes[i] ;
+        }
+        throw "station not found" ;
+    }
+
+    Time arrivingTime (const Time &begin_time, const char *station) {
+        Time res = begin_time ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], station) == 0) return res ;
+            res = res + travelTimes[i] + stopoverTimes[i] ;
+        }
+        throw "station not found" ;
+    }
+
+    int calPrice (const char *from, const char *to) {
+        int price = 0; bool flag = 0 ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], to) == 0) return price ;
+            if (strcmp (stations[i], from) == 0) flag = 1 ;
+            if (flag) price += prices[i] ;
+        }
+        throw "station not found" ;
+    }
+
+    int calSeatNum (const Time &_date, const char *from, const char *to) {
+        int days = _date - saleDate[1] ;
+        int seatNum = 1e9; bool flag = 0 ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], to) == 0) return seatNum ;
+            if (strcmp (stations[i], from) == 0) flag = 1 ;
+            if (flag) seatNum = min (seatNum, seat[days][i]) ;
+        }
+        throw "station not found" ;
     }
 
 } ;

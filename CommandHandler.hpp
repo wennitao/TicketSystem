@@ -10,6 +10,7 @@
 #include "time.hpp"
 #include "user.hpp"
 #include "train.hpp"
+#include "ticket.hpp"
 #include "main.h"
 
 using namespace std;
@@ -343,6 +344,8 @@ public:
         }
     }
 
+    bool cmp_
+
     void query_ticket () {
         if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
         Time date ;
@@ -371,8 +374,21 @@ public:
             }
         }
 
-        
-        
+        int ticket_cnt = 1 ;
+        ticket *tickets = new ticket[train_pos.size()] ;
+        for (int i = 0; i < train_pos.size(); i ++) {
+            train cur_train = train_read (train_pos[i]) ;
+            if (!cur_train.runningOnDate (date)) continue ;
+            tickets[ticket_cnt ++] = ticket (cur_train.getTrainID(), startStationName, terminalStationName, 
+            cur_train.leavingTime (date, startStationName), 
+            cur_train.arrivingTime (date, terminalStationName), 
+            cur_train.calPrice (startStationName, terminalStationName), 
+            cur_train.calSeatNum (date, startStationName, terminalStationName), success) ;
+        }
+
+        if (priority) {
+            if (strcmp (priority, "time") == 0) 
+        }
     }
 
 } ;

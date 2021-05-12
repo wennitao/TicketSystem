@@ -41,6 +41,7 @@ public:
 
 ostream& operator << (ostream &out, const ticket &_ticket) {
     out << status_str[_ticket.status] << " " << _ticket.trainID << " " << _ticket.from << " " << _ticket.leaving_time << " -> " << _ticket.to << " " << _ticket.arriving_time << " " << _ticket.price << " " << _ticket.seat_num ; 
+    return out ;
 }
 
 #endif
