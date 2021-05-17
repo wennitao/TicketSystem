@@ -24,9 +24,10 @@ private:
         int rbro;
         int son[size + 3]{};
         data key[size + 1];
+
         node(){
             is_leaf = true;
-            keycnt = 0;
+            keycnt = 0;//0-based
             fa = -1;
             lbro = -1;
             rbro = -1;
@@ -40,7 +41,7 @@ private:
     fstream io;
     char file_name[100];
     int root = -1;
-    int nodenum = 0;
+    int nodenum = 0;//0-based
     const int node_size = sizeof (node);
     const int init_offset = 2 * sizeof (int);//跳过存root与nodenum的地址
 public:

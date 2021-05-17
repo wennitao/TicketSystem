@@ -4,11 +4,25 @@
 
 #include "Bpt_and_database.h"
 #include <iostream>
-#include <cstdio>
 #include <cstring>
 #include <string>
 #include <vector>
+//#include "vector.h"
+//using sjtu::vector;
 using namespace std;
+void insert_sort(data *a , int num , data Isert){//二分法插入排序
+    int l = 0;
+    int r = num - 1;
+    while (l <= r){
+        int mid = (l + r) >> 1;
+        if (Isert < a[mid]) r = mid - 1;
+        else l = mid + 1;
+    }
+    for (int i = num - 1; i >= l; --i) {
+        a[i + 1] = a[i];
+    }
+    a[l] = Isert;
+}
 void Database::node::print() {
     cout << "is_leaf: " << is_leaf << " keycnt: " << keycnt << " fa: " << fa << endl << "son: ";
     for (int i = 0; i <= size; ++i) {
@@ -33,14 +47,97 @@ void Database::print(int nod) {
         }
     }
 };
-void Database::insert(const data &x) {};
-void Database::insert(int &pa, int lchild, int rchild, const data &x) {};
+void Database::insert(const data &x) {
+    if (root == -1){
+        node cur ;
+        cur.key[cur.keycnt ++] = x ;
+        root = 0;//最开始root是第一个节点
+        nodenum++;
+        disk_write(0 , cur);
+    } else {
+        int tmp_pos = search(root , x);
+        node cur = disk_read(tmp_pos);
+//        cur.key[cur.keycnt ++] = x;
+        insert_sort(cur.key , cur.keycnt , x);
+        if (cur.keycnt <= maxkey) disk_write(tmp_pos , cur);//先插再分裂
+        else {
+            node nxt;
+            int nxt_pos = (nodenum ++ ) * node_size ;
+            for (int i = maxkey / 2; i < cur.keycnt; ++i) {
+                nxt.key[nxt.keycnt ++] = cur.key[i];
+                clear(cur.key[i]);
+            }
+            cur.keycnt = maxkey / 2;
+            nxt.lbro = tmp_pos;
+            nxt.rbro = cur.rbro;
+            cur.rbro = nxt_pos;
+            disk_write(tmp_pos , cur);
+            disk_write(nxt_pos , nxt);
+            insert(cur.fa , tmp_pos , nxt_pos , nxt.key[0]);
+        }
+    }
+    update_root();
+};
+void Database::insert(int &pa, int lchild, int rchild, const data &x) {
+    if (pa == -1){
+        pa = (nodenum ++) * node_size;
+        node pa_node;
+        pa_node.is_leaf = false;
+        pa_node.key[pa_node.keycnt++] = x;
+        pa_node.son[0] = lchild;
+        pa_node.son[1] = rchild;
+        update_son_fa(lchild , pa);
+        update_son_fa(rchild , pa);
+        disk_write(pa , pa_node);
+        root = pa;
+    } else {
+        node pa_node = disk_read(pa);
+        int pos = 0;
+        for (; pos < pa_node.keycnt && pa_node.key[pos] < x; pos++);
+        for (int i = pa_node.keycnt - 1 ; i >= pos ; i--){
+            pa_node.key[i + 1] = pa_node.key[i];
+        }
+        pa_node.key[pos] = x;
+        for (int i = pa_node.keycnt; i >= pos + 1; --i) {
+            pa_node.son[i + 1] = pa_node.son[i];
+        }
+        pa_node.son[pos] = lchild;//这句话好像没用？
+        pa_node.son[pos + 1] = rchild;
+        update_son_fa(lchild , pa);
+        update_son_fa(rchild , pa);
+        pa_node.keycnt++;
+        if (pa_node.keycnt <= maxkey){
+            disk_write(pa , pa_node);
+        } else {
+            node nxt_node;
+            nxt_node.is_leaf = false;
+            int nxt_pos = (nodenum ++) * node_size;
+            for (int i = maxkey / 2 + 1; i < pa_node.keycnt; ++i) {
+                nxt_node.key[nxt_node.keycnt ++] = pa_node.key[i];
+                clear(pa_node.key[i]);
+                nxt_node.son[i - (maxkey / 2 + 1 )] = pa_node.son[i];
+                update_son_fa(pa_node.son[i] , nxt_pos);
+
+                pa_node.son[i] = -1;
+            }
+            nxt_node.son[pa_node.keycnt - (maxkey / 2 + 1)] = pa_node.son[pa_node.keycnt];
+            update_son_fa(pa_node.son[pa_node.keycnt] , nxt_pos);
+
+            pa_node.keycnt = maxkey / 2;
+            data tmp = pa_node.key[maxkey / 2];
+            clear(pa_node.key[maxkey / 2]);
+            disk_write(pa , pa_node);
+            disk_write(nxt_pos , nxt_node);
+            insert(pa_node.fa , pa , nxt_pos , tmp);
+        }
+    }
+};
 pair<int, int> Database::find(const data &x) {
     return find(root , x);
 };
 pair<int, int> Database::find(int nod, const data &x) {
     if (nod == -1)return make_pair(-1 , -1);
-    node cur = disk_read(nod);
+    node cur = disk_read(nod);//key[0]为空
     int pos = 0;
     for (;pos < cur.keycnt && cur.key[pos] < x ; pos++);
     if (cur.is_leaf){
@@ -82,7 +179,7 @@ void Database::find(int nod, const data &x, vector<int> &cap) {
         }
     }
 };
-int Database::search(int nod, const data &x) {//find the leaf_node where can inseert x
+int Database::search(int nod, const data &x) {//find the leaf_node where can insert x//return the node
     node cur = disk_read(nod);
     if (cur.is_leaf)return nod;
     int pos = 0;
@@ -95,18 +192,53 @@ void Database::clear(data &tmp) {
     memset(tmp.str , 0 , sizeof(tmp.str));
     tmp.pos = -1;
 };
-void Database::erase(const data &x) {};
+void Database::erase(const data &x) {
+    pair<int , int> pos = find(x);
+    if (pos.first == -1) throw "not found";//这个地方要不要改为返回？
+    node cur = disk_read(pos.first);
+    for (int i = pos.second; i < cur.keycnt - 1; ++i) {
+        cur.key[i] = cur.key[i + 1];
+    }
+    clear(cur.key[cur.keycnt - 1]);
+    cur.keycnt--;
+    if (cur.keycnt >= maxkey/2){
+        disk_write(pos.first , cur);
+    } else{
+        if (cur.fa == -1){
+            disk_write(pos.first , cur);
+            return;
+        }
+        int lbro = cur.lbro;
+        int rbro = cur.rbro;
+        node lbro_node;
+        node rbro_node;
+        node par_node = disk_read(cur.fa);
+        if (lbro != -1) lbro_node = disk_read(lbro);
+        if (rbro != -1) rbro_node = disk_read(rbro);
+        if (lbro != -1 && lbro_node.keycnt > maxkey/2){
+            for (int i = cur.keycnt; i > 0 ; --i) {
+                cur.key[i] = cur.key[i - 1];
+            }
+            cur.key[0] = lbro_node.key[lbro_node.keycnt - 1];
+            clear(lbro_node.key[lbro_node.keycnt - 1]);
+            lbro_node.keycnt--;
+
+        }
+    }
+};
+
 Database::node Database::disk_read(int pos) {
     io.seekg(pos + init_offset , ios::beg);
     node cur;
     io.read(reinterpret_cast<char *>(&cur), sizeof(node));
     return cur;
-};
+};//两个函数的作用都是跳过init_offset
 void Database::disk_write(int pos, node &x) {
     io.seekp(pos + init_offset , ios::beg);
     io.write(reinterpret_cast<char *>(&x) , sizeof(node));
 };
-void Database::erase_par(int nod) {};
+void Database::erase_par(int nod) {
+};
 int Database::findKey(const data &x) {
     pair<int , int> pos = find(x);
     if (pos.first == -1) return -1;
