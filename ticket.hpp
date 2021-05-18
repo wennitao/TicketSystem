@@ -19,22 +19,30 @@ class ticket {
 private:
     char trainID[25], from[35], to[35] ;
     Time leaving_time, arriving_time ;
-    int price, seat_num ;
+    int price, seat_num, travellingTime ;
     Status status ;
 
 public:
     ticket () {}
-    ticket (const char *_trainID, const char *_from, const char *_to, const Time &_leaving_time, const Time &_arriving_time, const int _price, const int _seat_num, const Status _status) {
+    ticket (const char *_trainID, const char *_from, const char *_to, const Time &_leaving_time, const Time &_arriving_time, const int _price, const int _seat_num, const int _travellingTime, const Status _status) {
         strcpy (trainID, _trainID) ;
         strcpy (from, _from) ;
         strcpy (to, _to) ;
         leaving_time = _leaving_time; arriving_time = _arriving_time ;
-        price = _price; seat_num = _seat_num ;
+        price = _price; seat_num = _seat_num; travellingTime = _travellingTime ;
         status = _status ;
     }
 
     void print () {
-        cout << trainID << " " << from << " " << leaving_time << " -> " << to << " " << arriving_time << " " << price << " " << seat_num ; 
+        cout << trainID << " " << from << " " << leaving_time << " -> " << to << " " << arriving_time << " " << price << " " << seat_num << endl ; 
+    }
+
+    int getTravellingTime () const {
+        return travellingTime ;
+    }
+
+    int getPrice() const {
+        return price ;
     }
 
 } ;

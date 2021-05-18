@@ -345,11 +345,11 @@ public:
     }
 
     bool cmp_time (const ticket &a, const ticket &b) const {
-
+        return a.getTravellingTime() < b.getTravellingTime() ;
     }
 
     bool cmp_cost (const ticket &a, const ticket &b) const {
-        
+        return a.getPrice() < b.getPrice() ;
     }
 
     void query_ticket () {
@@ -389,7 +389,9 @@ public:
             cur_train.leavingTime (date, startStationName), 
             cur_train.arrivingTime (date, terminalStationName), 
             cur_train.calPrice (startStationName, terminalStationName), 
-            cur_train.calSeatNum (date, startStationName, terminalStationName), success) ;
+            cur_train.calSeatNum (date, startStationName, terminalStationName), 
+            cur_train.getTravellingTime (startStationName, terminalStationName), 
+            success) ;
         }
 
         if (priority) {
@@ -398,7 +400,13 @@ public:
             else
                 sort (tickets, tickets + ticket_cnt, cmp_cost) ;
         }
+
+        printf("%d\n", ticket_cnt) ;
+        for (int i = 0; i < ticket_cnt; i ++)
+            tickets[i].print() ;
     }
+
+    
 
 } ;
 

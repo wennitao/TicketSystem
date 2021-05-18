@@ -101,6 +101,17 @@ public:
         throw "station not found" ;
     }
 
+    int getTravellingTime (const char *fromStation, const char *toStation) {
+        int travellingTime = 0 ;
+        bool flag = 0 ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], toStation) == 0) break ;
+            if (strcmp (stations[i], fromStation) == 0) flag = 1 ;
+            if (flag) travellingTime += travelTimes[i] ;
+        }
+        return travellingTime ;
+    }
+
     int calPrice (const char *from, const char *to) {
         int price = 0; bool flag = 0 ;
         for (int i = 1; i <= stationNum; i ++) {
