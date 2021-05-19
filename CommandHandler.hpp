@@ -562,9 +562,13 @@ public:
         orders.find (data (username, 0), pos) ;
         if (pos.empty()) throw "no orders" ;
 
-        ticket cur_order = order_read (pos[0]) ;
+        ticket cur_order = order_read (pos[order_num - 1]) ;
         if (cur_order.getStatus() != success) throw "can't refund" ;
 
+        cur_order.setStatus (refunded) ;
+        order_write (pos[order_num - 1], cur_order) ;
+
+        pos.clear() ;
         
     }
 

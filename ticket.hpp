@@ -46,6 +46,8 @@ public:
         return travellingTime ;
     }
 
+    
+
     int getPrice() const {
         return price ;
     }
