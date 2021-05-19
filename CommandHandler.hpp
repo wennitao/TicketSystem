@@ -132,6 +132,8 @@ public:
         orderio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
     }
 
+    
+
     void add_user () {
         if (par_cnt != 6) throw "command wrong format" ;
         char *cur_username, *username, *password, *name, *mailAddr ;
@@ -274,10 +276,10 @@ public:
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
             else if (par_key[i][1] == 'n') {
                 int len = strlen (par_val[i]) ;
-                for (int j = 1; j <= len; j ++) stationNum = stationNum * 10 + par_val[i][j] - '0' ;
+                for (int j = 0; j < len; j ++) stationNum = stationNum * 10 + par_val[i][j] - '0' ;
             } else if (par_key[i][1] == 'm') {
                 int len = strlen (par_val[i]) ;
-                for (int j = 1; j <= len; j ++) seatNum = seatNum * 10 + par_val[i][j] - '0' ;
+                for (int j = 0; j < len; j ++) seatNum = seatNum * 10 + par_val[i][j] - '0' ;
             } else if (par_key[i][1] == 's') {
                 int curid = 1, curlen = 0, cur = 0, len = strlen (par_val[i]) ;
                 for (; cur < len; cur ++) {
@@ -340,11 +342,10 @@ public:
 
     void query_train () {
         if (par_cnt != 2) throw "command wrong format" ;
-        char *trainID ;
-        Time date ;
+        char *trainID, *date ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
-            else if (par_key[i][1] == 'd') date = Time (par_val[i], "00:00") ;
+            else if (par_key[i][1] == 'd') date = par_val[i] ;
         }
         vector<int> pos ;
         trains.find (data (trainID, 0), pos) ;
@@ -370,23 +371,22 @@ public:
         }
     }
 
-    bool cmp_time (const ticket &a, const ticket &b) const {
+    static bool cmp_time (const ticket &a, const ticket &b) {
         return a.getTravellingTime() < b.getTravellingTime() ;
     }
 
-    bool cmp_cost (const ticket &a, const ticket &b) const {
+    static bool cmp_cost (const ticket &a, const ticket &b) {
         return a.getPrice() < b.getPrice() ;
     }
 
     void query_ticket () {
         if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
-        Time date ;
-        char *startStationName, *terminalStationName ;
+        char *startStationName, *terminalStationName, *date ;
         bool priority = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 's') startStationName = par_val[i] ;
             else if (par_key[i][1] == 't') terminalStationName = par_val[i] ;
-            else if (par_key[i][1] == 'd') date = Time (par_val[i], "00:00") ;
+            else if (par_key[i][1] == 'd') date = par_val[i] ;
             else priority = strcpy (par_val[i], "time") == 0 ? 0 : 1 ;
         }
 
@@ -407,7 +407,8 @@ public:
             }
         }
 
-        int ticket_cnt = 1 ;
+
+        int ticket_cnt = 0 ;
         ticket *tickets = new ticket[train_pos.size()] ;
         for (int i = 0; i < train_pos.size(); i ++) {
             train cur_train = train_read (train_pos[i]) ;
@@ -416,7 +417,7 @@ public:
             cur_train.leavingTime (date, startStationName), 
             cur_train.arrivingTime (date, terminalStationName), 
             cur_train.calPrice (startStationName, terminalStationName), 
-            cur_train.calSeatNum (date, startStationName, terminalStationName), 
+            cur_train.calSeatNum (Time (date, "00:00"), startStationName, terminalStationName), 
             cur_train.getTravellingTime (startStationName, terminalStationName), 
             success) ;
         }
@@ -435,14 +436,13 @@ public:
 
     void buy_ticket () {
         if (par_cnt < 6 || par_cnt > 7) throw "command wrong format" ;
-        char *username, *trainID, *startStationName, *terminalStationName ;
-        Time date ;
+        char *username, *trainID, *startStationName, *terminalStationName, *date ;
         int ticketNum = 0 ;
         bool q = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'u') username = par_val[i] ;
             else if (par_key[i][1] == 'i') trainID = par_val[i] ;
-            else if (par_key[i][1] == 'd') date = Time (par_val[i], "00:00") ;
+            else if (par_key[i][1] == 'd') date = par_val[i] ;
             else if (par_key[i][1] == 'f') startStationName = par_val[i] ;
             else if (par_key[i][1] == 't') terminalStationName = par_val[i] ;
             else if (par_key[i][1] == 'n') {
@@ -464,23 +464,25 @@ public:
         train cur_train = train_read (pos[0]) ;
         if (!cur_train.runningOnDate (date, startStationName)) throw "no trains on this date" ;
 
-        int remainingSeatNum = cur_train.calSeatNum (date, startStationName, terminalStationName) ;
+        int remainingSeatNum = cur_train.calSeatNum (Time (date, "00:00"), startStationName, terminalStationName) ;
         if (remainingSeatNum < ticketNum && !q) throw "no enough tickets" ;
+
+        long long order_price = 1ll * ticketNum * cur_train.calPrice (startStationName, terminalStationName) ;
+        ticket cur_order = ticket (cur_train.getTrainID(), startStationName, terminalStationName, 
+        cur_train.leavingTime (date, startStationName), 
+        cur_train.arrivingTime (date, terminalStationName), 
+        order_price, 
+        cur_train.calSeatNum (Time (date, "00:00"), startStationName, terminalStationName), 
+        cur_train.getTravellingTime (startStationName, terminalStationName), 
+        success) ;
+
+        int write_pos = order_write (cur_order) ;
+        orders.insert (data (username, write_pos)) ;
 
         if (remainingSeatNum < ticketNum) {
             
-        } else {
-            ticket cur_order = ticket (cur_train.getTrainID(), startStationName, terminalStationName, 
-            cur_train.leavingTime (date, startStationName), 
-            cur_train.arrivingTime (date, terminalStationName), 
-            1ll * ticketNum * cur_train.calPrice (startStationName, terminalStationName), 
-            ticketNum, 
-            cur_train.getTravellingTime (startStationName, terminalStationName), 
-            success) ;
-
-            int pos = order_write (cur_order) ;
-            orders.insert (data (username, pos)) ;
         }
+        
     }
 
 } ;

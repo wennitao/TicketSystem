@@ -9,9 +9,9 @@ BPlusTree users ("users_B+Tree.dat") ;
 BPlusTree trains ("trains_B+Tree.dat") ;
 BPlusTree trainStations ("trainStations_B+Tree.dat") ;
 BPlusTree curUsers ("curUsers.dat") ;
-BPlusTree oreders ("orders_B+Tree.dat") ;
+BPlusTree orders ("orders_B+Tree.dat") ;
 
-fstream userio, trainio, orderio ;
+fstream userio, trainio, orderio, pendingOrderIO ;
 
 void init () {
     fstream in ("users.dat", ios::in | ios::binary) ;
@@ -43,6 +43,19 @@ void init () {
     }
     in.close() ;
     if (!orderio.is_open()) orderio.open ("orders.dat", ios::in | ios::out | ios::binary) ;
+
+    in.open ("pendingOrders.dat", ios::in | ios::binary) ;
+    if (!in.is_open()) {
+        fstream out ("pendingOrders.dat", ios::out | ios::binary) ;
+        out.close() ;
+        pendingOrderIO.open ("pendingOrders.dat", ios::in | ios::out | ios::binary) ;
+        pendingOrderIO.seekp (0, ios::end) ;
+        int x = 0 ;
+        pendingOrderIO.write (reinterpret_cast<char *>(&x), sizeof x); x -- ;
+        pendingOrderIO.write (reinterpret_cast<char *>(&x), sizeof x);
+    }
+    in.close() ;
+    if (!pendingOrderIO.is_open()) pendingOrderIO.open ("pendingOrders.dat", ios::in | ios::out | ios::binary) ;
 }
 
 int main() {

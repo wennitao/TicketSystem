@@ -23,6 +23,11 @@ public:
         h = (_time[0] - '0') * 10 + (_time[1] - '0') ;
         m = (_time[3] - '0') * 10 + (_time[4] - '0') ;
     }
+    Time (const char *_date, pair<int, int> dayTime) {
+        month = (_date[0] - '0') * 10 + (_date[1] - '0') ;
+        day = (_date[3] - '0') * 10 + (_date[4] - '0') ;
+        h = dayTime.first; m = dayTime.second ;
+    }
     /*Time operator = (const Time &_time) {
         month = _time.month; day = _time.day ;
         h = _time.h; m = _time.m ;
@@ -33,6 +38,16 @@ public:
         res.h += res.m / 60; res.m %= 60 ;
         res.day += res.h / 24; res.h %= 24 ;
         if (res.day > days[res.month]) res.day -= days[res.month], res.month ++ ;
+        return res ;
+    }
+    Time operator - (const int min) {
+        Time res = *this ;
+        res.m -= min ;
+        res.h += res.m / 60; res.m %= 60 ;
+        if (res.m < 0) res.m += 60, res.h -- ;
+        res.day += res.h / 24; res.h %= 24 ;
+        if (res.h < 0) res.h += 24, res.day -- ;
+        if (res.day <= 0) res.month --, res.day += days[res.month] ;
         return res ;
     }
     int operator - (const Time &_time) const {
@@ -49,10 +64,13 @@ public:
     void setTime (const Time &_time) {
         h = _time.h; m = _time.h ;
     }
+    pair<int, int> getDayTime () const {
+        return make_pair (h, m) ;
+    }
 } ;
 
 ostream& operator << (ostream &out, const Time &_time) {
-    out << setw (2) << setfill ('0') << _time.month << '-' << _time.day << ' ' << _time.h << ':' << _time.m ;
+    out << setw (2) << setfill ('0') << _time.month << '-' << setw (2) << setfill ('0') << _time.day << ' ' << setw (2) << setfill ('0') << _time.h << ':' << setw (2) << setfill ('0') << _time.m ;
     return out ;
 }
 

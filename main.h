@@ -8,3 +8,4 @@ extern BPlusTree orders ;
 extern fstream userio ;
 extern fstream trainio ;
 extern fstream orderio ;
+extern fstream pendingOrderIO ;

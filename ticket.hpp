@@ -25,7 +25,7 @@ private:
 
 public:
     ticket () {}
-    ticket (const char *_trainID, const char *_from, const char *_to, const Time &_leaving_time, const Time &_arriving_time, const int _price, const int _seat_num, const int _travellingTime, const Status _status) {
+    ticket (const char *_trainID, const char *_from, const char *_to, const Time &_leaving_time, const Time &_arriving_time, const long long _price, const int _seat_num, const int _travellingTime, const Status _status) {
         strcpy (trainID, _trainID) ;
         strcpy (from, _from) ;
         strcpy (to, _to) ;
@@ -44,6 +44,10 @@ public:
 
     int getPrice() const {
         return price ;
+    }
+
+    void setStatus (Status st) {
+        status = st ;
     }
 
 } ;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <iomanip>
 
 #include "time.hpp"
 
@@ -28,7 +29,7 @@ public:
         for (int i = 1; i < stationNum; i ++) prices[i] = _prices[i] ;
         for (int i = 1; i < stationNum; i ++) travelTimes[i] = _travelTimes[i] ;
         stopoverTimes[1] = 0 ;
-        for (int i = 2; i <= stationNum - 1; i ++) stopoverTimes[i] = _stopoverTimes[i] ;
+        for (int i = 2; i <= stationNum - 1; i ++) stopoverTimes[i] = _stopoverTimes[i - 1] ;
         released = 0 ;
         int days = _saleDate[2] - _saleDate[1] ;
         for (int i = 1; i <= days; i ++)
@@ -57,29 +58,30 @@ public:
         return stations[id] ;
     }
 
-    bool runningOnDate (const Time &_date) {
-        return saleDate[1] <= _date && _date <= saleDate[2] ;
+    bool runningOnDate (const char *_date) {
+        return saleDate[1] <= Time (_date, "23:59") && Time (_date, "00:00") <= saleDate[2] ;
     }
 
-    bool runningOnDate (const Time &_date, const char *stationName) {
+    bool runningOnDate (const char *_date, const char *stationName) {
         Time d1 = saleDate[1], d2 = saleDate[2] ;
         for (int i = 1; i <= stationNum; i ++) {
             if (strcmp (stations[i], stationName) == 0) break ;
             d1 = d1 + travelTimes[i]; d1 = d1 + stopoverTimes[i] ;
             d2 = d2 + travelTimes[i]; d2 = d2 + stopoverTimes[i] ;
         }
-        return d1 <= _date && _date <= d2 ;
+        return d1 <= Time (_date, "23:59") && Time (_date, "00:00") <= d2 ;
     }
 
-    void print (const Time &date) {
+    void print (const char *date) {
         cout << trainID << " " << type << endl ;
-        Time cur_time = date ;
+        Time cur_time = Time (date, "00:00") ;
         cur_time.setTime (startTime) ;
         int cur_price = 0 ;
+        int days = cur_time - saleDate[1] ;
         for (int i = 1; i <= stationNum; i ++) {
             cout << stations[i] << " " ;
             if (i == 1) {
-                cout << "xx-xx xx:xx -> " << cur_time << " 0" << " " << seat[i] << endl ;
+                cout << "xx-xx xx:xx -> " << cur_time << " 0" << " " << seat[days][i] << endl ;
                 cur_time = cur_time + travelTimes[i] ; 
                 cur_price += prices[i] ;
             } else if (i == stationNum) {
@@ -87,15 +89,15 @@ public:
             } else {
                 cout << cur_time << " -> " ;
                 cur_time = cur_time + stopoverTimes[i] ;
-                cout << cur_time << " " << cur_price << " " << seat[i] << endl ;
+                cout << cur_time << " " << cur_price << " " << seat[days][i] << endl ;
                 cur_time = cur_time + travelTimes[i] ;
                 cur_price += prices[i] ;
             }
         }
     }
 
-    Time leavingTime (const Time &begin_time, const char *station) {
-        Time res = begin_time ;
+    Time leavingTime (const char *begin_time, const char *station) {
+        Time res = Time (begin_time, startTime.getDayTime());
         for (int i = 1; i <= stationNum; i ++) {
             if (strcmp (stations[i], station) == 0) return res + stopoverTimes[i] ;
             res = res + travelTimes[i] + stopoverTimes[i] ;
@@ -103,8 +105,8 @@ public:
         throw "station not found" ;
     }
 
-    Time arrivingTime (const Time &begin_time, const char *station) {
-        Time res = begin_time ;
+    Time arrivingTime (const char *begin_time, const char *station) {
+        Time res = Time (begin_time, startTime.getDayTime());
         for (int i = 1; i <= stationNum; i ++) {
             if (strcmp (stations[i], station) == 0) return res ;
             res = res + travelTimes[i] + stopoverTimes[i] ;
@@ -134,7 +136,13 @@ public:
     }
 
     int calSeatNum (const Time &_date, const char *from, const char *to) {
-        int days = _date - saleDate[1] ;
+        Time arrivingAtFromTime = saleDate[1] ;
+        arrivingAtFromTime.setTime (startTime) ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], from) == 0) break ;
+            arrivingAtFromTime = arrivingAtFromTime + stopoverTimes[i] + travelTimes[i] ;
+        }
+        int days = _date - arrivingAtFromTime ;
         int seatNum = 1e9; bool flag = 0 ;
         for (int i = 1; i <= stationNum; i ++) {
             if (strcmp (stations[i], to) == 0) return seatNum ;
