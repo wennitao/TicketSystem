@@ -32,7 +32,7 @@ public:
         for (int i = 2; i <= stationNum - 1; i ++) stopoverTimes[i] = _stopoverTimes[i - 1] ;
         released = 0 ;
         int days = _saleDate[2] - _saleDate[1] ;
-        for (int i = 1; i <= days; i ++)
+        for (int i = 0; i <= days; i ++)
             for (int j = 1; j <= stationNum; j ++)
                 seat[i][j] = seatNum ;
     }
@@ -70,6 +70,15 @@ public:
             d2 = d2 + travelTimes[i]; d2 = d2 + stopoverTimes[i] ;
         }
         return d1 <= Time (_date, "23:59") && Time (_date, "00:00") <= d2 ;
+    }
+
+    bool runningFromTo (const char *from, const char *to) {
+        bool flag = 0 ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], to) == 0) flag = 1 ;
+            if (flag && strcmp (stations[i], from) == 0) return 0 ;
+        }
+        return 1 ;
     }
 
     void print (const char *date) {
@@ -150,6 +159,22 @@ public:
             if (flag) seatNum = min (seatNum, seat[days][i]) ;
         }
         throw "station not found" ;
+    }
+
+    void sellSeats (const Time &_date, const char *from, const char *to, int sellSeatNum) {
+        Time arrivingAtFromTime = saleDate[1] ;
+        arrivingAtFromTime.setTime (startTime) ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], from) == 0) break ;
+            arrivingAtFromTime = arrivingAtFromTime + stopoverTimes[i] + travelTimes[i] ;
+        }
+        int days = _date - arrivingAtFromTime ;
+        bool flag = 0 ; 
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], from) == 0) flag = 1 ;
+            if (strcmp (stations[i], to) == 0) break ;
+            if (flag) seat[days][i] -= sellSeatNum ;
+        }
     }
 
 } ;

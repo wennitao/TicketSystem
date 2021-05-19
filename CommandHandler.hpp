@@ -439,6 +439,7 @@ public:
         for (int i = 0; i < train_pos.size(); i ++) {
             train cur_train = train_read (train_pos[i]) ;
             if (!cur_train.runningOnDate (date, startStationName)) continue ;
+            if (!cur_train.runningFromTo (startStationName, terminalStationName)) continue ;
             tickets[ticket_cnt ++] = ticket (cur_train.getTrainID(), startStationName, terminalStationName, 
             cur_train.leavingTime (date, startStationName), 
             cur_train.arrivingTime (date, terminalStationName), 
@@ -487,6 +488,7 @@ public:
         pos.clear() ;
         trains.find (data (trainID, 0), pos) ;
         if (pos.empty()) throw "train not found" ;
+        int train_file_pos = pos[0] ;
         train cur_train = train_read (pos[0]) ;
         if (!cur_train.runningOnDate (date, startStationName)) throw "no trains on this date" ;
 
@@ -498,18 +500,22 @@ public:
         cur_train.leavingTime (date, startStationName), 
         cur_train.arrivingTime (date, terminalStationName), 
         order_price, 
-        cur_train.calSeatNum (Time (date, "00:00"), startStationName, terminalStationName), 
+        ticketNum, 
         cur_train.getTravellingTime (startStationName, terminalStationName), 
         success) ;
 
-        int write_pos = order_write (cur_order) ;
-        orders.insert (data (username, write_pos)) ;
-
         if (remainingSeatNum < ticketNum) {
+            cur_order.setStatus (pending) ;
+            int write_pos = order_write (cur_order) ;
+            orders.insert (data (username, write_pos)) ;
             pushPendingOrder (write_pos) ;
             printf("queue\n") ;
         } else {
+            int write_pos = order_write (cur_order) ;
+            orders.insert (data (username, write_pos)) ;
+            cur_train.sellSeats (Time (date, "00:00"), startStationName, terminalStationName, ticketNum) ;
             printf("%lld\n", order_price) ;
+            train_write (train_file_pos, cur_train) ;
         }
         
     }
@@ -534,7 +540,7 @@ public:
     }
 
     void refund_ticket () {
-        
+
     }
 
 } ;
