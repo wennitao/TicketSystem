@@ -19,7 +19,8 @@ class ticket {
 private:
     char trainID[25], from[35], to[35] ;
     Time leaving_time, arriving_time ;
-    int price, seat_num, travellingTime ;
+    long long price ;
+    int seat_num, travellingTime ;
     Status status ;
 
 public:

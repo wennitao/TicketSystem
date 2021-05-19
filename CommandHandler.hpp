@@ -54,14 +54,21 @@ public:
                 exit (0) ;
             } else if (strcmp (main_op, "add_train") == 0) {
                 add_train () ;
+                printf("0\n") ;
             } else if (strcmp (main_op, "release_train") == 0) {
                 release_train() ;
+                printf("0\n") ;
             } else if (strcmp (main_op, "query_train") == 0) {
                 query_train() ;
             } else if (strcmp (main_op, "delete_train") == 0) {
                 delete_train() ;
+                printf("0\n") ;
             } else if (strcmp (main_op, "query_ticket") == 0) {
                 query_ticket () ;
+            } else if (strcmp (main_op, "query_transfer") == 0) {
+                query_transfer () ;
+            } else if (strcmp (main_op, "buy_ticket") == 0) {
+                buy_ticket () ;
             }
         } catch (...) {
             printf("-1\n") ;
@@ -104,6 +111,25 @@ public:
     void train_write (int pos, train &cur) {
         trainio.seekp (pos, ios::beg) ;
         trainio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
+    }
+
+    ticket order_read (int pos) {
+        orderio.seekg (pos, ios::beg) ;
+        ticket cur ;
+        orderio.read (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
+        return cur ;
+    }
+
+    int order_write (ticket &cur) {
+        orderio.seekp (0, ios::end) ;
+        int pos = orderio.tellp() ;
+        orderio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
+        return pos ;
+    }
+
+    void order_write (int pos, ticket &cur) {
+        orderio.seekp (pos, ios::beg) ;
+        orderio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
     }
 
     void add_user () {
@@ -355,12 +381,13 @@ public:
     void query_ticket () {
         if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
         Time date ;
-        char *startStationName, *terminalStationName, *priority = nullptr;
+        char *startStationName, *terminalStationName ;
+        bool priority = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 's') startStationName = par_val[i] ;
             else if (par_key[i][1] == 't') terminalStationName = par_val[i] ;
             else if (par_key[i][1] == 'd') date = Time (par_val[i], "00:00") ;
-            else priority = par_val[i] ;
+            else priority = strcpy (par_val[i], "time") == 0 ? 0 : 1 ;
         }
 
         vector<int> start_pos, end_pos, train_pos ;
@@ -384,7 +411,7 @@ public:
         ticket *tickets = new ticket[train_pos.size()] ;
         for (int i = 0; i < train_pos.size(); i ++) {
             train cur_train = train_read (train_pos[i]) ;
-            if (!cur_train.runningOnDate (date)) continue ;
+            if (!cur_train.runningOnDate (date, startStationName)) continue ;
             tickets[ticket_cnt ++] = ticket (cur_train.getTrainID(), startStationName, terminalStationName, 
             cur_train.leavingTime (date, startStationName), 
             cur_train.arrivingTime (date, terminalStationName), 
@@ -394,19 +421,67 @@ public:
             success) ;
         }
 
-        if (priority) {
-            if (strcmp (priority, "time") == 0)
-                sort (tickets, tickets + ticket_cnt, cmp_time) ;
-            else
-                sort (tickets, tickets + ticket_cnt, cmp_cost) ;
-        }
+        if (priority) sort (tickets, tickets + ticket_cnt, cmp_cost) ;
+        else sort (tickets, tickets + ticket_cnt, cmp_time) ;
 
         printf("%d\n", ticket_cnt) ;
         for (int i = 0; i < ticket_cnt; i ++)
             tickets[i].print() ;
     }
 
-    
+    void query_transfer () {
+
+    }
+
+    void buy_ticket () {
+        if (par_cnt < 6 || par_cnt > 7) throw "command wrong format" ;
+        char *username, *trainID, *startStationName, *terminalStationName ;
+        Time date ;
+        int ticketNum = 0 ;
+        bool q = 0 ;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 'u') username = par_val[i] ;
+            else if (par_key[i][1] == 'i') trainID = par_val[i] ;
+            else if (par_key[i][1] == 'd') date = Time (par_val[i], "00:00") ;
+            else if (par_key[i][1] == 'f') startStationName = par_val[i] ;
+            else if (par_key[i][1] == 't') terminalStationName = par_val[i] ;
+            else if (par_key[i][1] == 'n') {
+                int len = strlen (par_val[i]) ;
+                for (int j = 0; j < len; j ++) ticketNum = ticketNum * 10 + par_val[i][j] - '0' ;
+            }
+            else if (par_key[i][1] == 'q') q = strcmp (par_val[i], "true") == 0 ? 1 : 0 ;
+            else throw "command wrong format" ;
+        }
+
+        vector<int> pos ;
+        curUsers.find (data (username, 0), pos) ;
+        if (pos.empty()) throw "user not logged in" ;
+        user cur_user = user_read (pos[0]) ;
+
+        pos.clear() ;
+        trains.find (data (trainID, 0), pos) ;
+        if (pos.empty()) throw "train not found" ;
+        train cur_train = train_read (pos[0]) ;
+        if (!cur_train.runningOnDate (date, startStationName)) throw "no trains on this date" ;
+
+        int remainingSeatNum = cur_train.calSeatNum (date, startStationName, terminalStationName) ;
+        if (remainingSeatNum < ticketNum && !q) throw "no enough tickets" ;
+
+        if (remainingSeatNum < ticketNum) {
+            
+        } else {
+            ticket cur_order = ticket (cur_train.getTrainID(), startStationName, terminalStationName, 
+            cur_train.leavingTime (date, startStationName), 
+            cur_train.arrivingTime (date, terminalStationName), 
+            1ll * ticketNum * cur_train.calPrice (startStationName, terminalStationName), 
+            ticketNum, 
+            cur_train.getTravellingTime (startStationName, terminalStationName), 
+            success) ;
+
+            int pos = order_write (cur_order) ;
+            orders.insert (data (username, pos)) ;
+        }
+    }
 
 } ;
 

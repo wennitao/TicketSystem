@@ -27,6 +27,7 @@ public:
         saleDate[1] = _saleDate[1]; saleDate[2] = _saleDate[2] ;
         for (int i = 1; i < stationNum; i ++) prices[i] = _prices[i] ;
         for (int i = 1; i < stationNum; i ++) travelTimes[i] = _travelTimes[i] ;
+        stopoverTimes[1] = 0 ;
         for (int i = 2; i <= stationNum - 1; i ++) stopoverTimes[i] = _stopoverTimes[i] ;
         released = 0 ;
         int days = _saleDate[2] - _saleDate[1] ;
@@ -58,6 +59,16 @@ public:
 
     bool runningOnDate (const Time &_date) {
         return saleDate[1] <= _date && _date <= saleDate[2] ;
+    }
+
+    bool runningOnDate (const Time &_date, const char *stationName) {
+        Time d1 = saleDate[1], d2 = saleDate[2] ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], stationName) == 0) break ;
+            d1 = d1 + travelTimes[i]; d1 = d1 + stopoverTimes[i] ;
+            d2 = d2 + travelTimes[i]; d2 = d2 + stopoverTimes[i] ;
+        }
+        return d1 <= _date && _date <= d2 ;
     }
 
     void print (const Time &date) {
