@@ -37,6 +37,10 @@ public:
     void print () {
         cout << trainID << " " << from << " " << leaving_time << " -> " << to << " " << arriving_time << " " << price << " " << seat_num << endl ; 
     }
+    
+    Time getLeavingTime () const {
+        return leaving_time ;
+    }
 
     int getTravellingTime () const {
         return travellingTime ;
@@ -44,6 +48,10 @@ public:
 
     int getPrice() const {
         return price ;
+    }
+
+    Status getStatus () const {
+        return status ;
     }
 
     void setStatus (Status st) {

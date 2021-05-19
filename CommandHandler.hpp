@@ -73,6 +73,8 @@ public:
                 query_order() ;
             } else if (strcmp (main_op, "refund_ticket") == 0) {
                 refund_ticket() ;
+            } else if (strcmp (main_op, "clean") == 0) {
+                clean () ;
             }
         } catch (...) {
             printf("-1\n") ;
@@ -540,6 +542,33 @@ public:
     }
 
     void refund_ticket () {
+        if (par_cnt < 1 || par_cnt > 2) throw "command wrong format" ;
+        char *username ;
+        int order_num = 1 ;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 'u') username = par_val[i] ;
+            else if (par_key[i][1] == 'n') {
+                order_num = 0 ;
+                int len = strlen (par_val[i]) ;
+                for (int j = 0; j < len; j ++) order_num = order_num * 10 + par_val[i][j] - '0' ;
+            }
+        }
+
+        vector<int> pos ;
+        curUsers.find (data (username, 0), pos) ;
+        if (pos.empty()) throw "user not logged in" ;
+
+        pos.clear() ;
+        orders.find (data (username, 0), pos) ;
+        if (pos.empty()) throw "no orders" ;
+
+        ticket cur_order = order_read (pos[0]) ;
+        if (cur_order.getStatus() != success) throw "can't refund" ;
+
+        
+    }
+
+    void clean () {
 
     }
 

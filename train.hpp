@@ -177,6 +177,21 @@ public:
         }
     }
 
+    void addSeats (const Time &_date, const char *from, const char *to, int sellSeatNum) {
+        Time arrivingAtFromTime = saleDate[1] ;
+        arrivingAtFromTime.setTime (startTime) ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], from) == 0) break ;
+            arrivingAtFromTime = arrivingAtFromTime + stopoverTimes[i] + travelTimes[i] ;
+        }
+        int days = _date - arrivingAtFromTime ;
+        bool flag = 0 ; 
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], from) == 0) flag = 1 ;
+            if (strcmp (stations[i], to) == 0) break ;
+            if (flag) seat[days][i] += sellSeatNum ;
+        }
+    }
 } ;
 
 #endif
