@@ -569,6 +569,12 @@ public:
         order_write (pos[order_num - 1], cur_order) ;
 
         pos.clear() ;
+        const char *trainID = cur_order.getTrainID() ;
+        trains.find (data (trainID, 0), pos) ;
+        train cur_train = train_read (pos[0]) ;
+        cur_train.addSeats (cur_order.getLeavingTime(), cur_order.getFromStation(), cur_order.getToStation(), cur_order.getSeatNum()) ;
+        train_write (pos[0], cur_train) ;
+
         
     }
 

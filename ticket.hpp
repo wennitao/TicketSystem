@@ -46,10 +46,24 @@ public:
         return travellingTime ;
     }
 
-    
+    const char* getTrainID () const {
+        return trainID ;
+    }
+
+    const char* getFromStation() const {
+        return from ;
+    }
+
+    const char* getToStation() const {
+        return to ;
+    }
 
     int getPrice() const {
         return price ;
+    }
+
+    int getSeatNum () const {
+        return seat_num ;
     }
 
     Status getStatus () const {
