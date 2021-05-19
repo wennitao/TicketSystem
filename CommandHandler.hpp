@@ -138,28 +138,17 @@ public:
         orderio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
     }
 
-    pair<ticket, bool> popPendingOrder () {
-        pendingOrderIO.seekg (0, ios::beg) ;
-        int l, r, offset = 2 * sizeof (int) ;
-        pendingOrderIO.read (reinterpret_cast<char *>(&l), sizeof l) ;
-        pendingOrderIO.read (reinterpret_cast<char *>(&r), sizeof r) ;
-        if (l > r) return make_pair (ticket (), 0) ;
-        int pos ;
-        pendingOrderIO.seekg (offset + l * sizeof (int), ios::beg) ;
-        pendingOrderIO.read (reinterpret_cast<char *>(&pos), sizeof pos) ;
-        return make_pair (order_read (pos), 1) ;
-    }
+    void add_station (const char *_stationName) {
+        stationio.seekg (0, ios::beg) ;
+        int cnt ;
+        stationio.read (reinterpret_cast<char *>(&cnt), sizeof cnt); cnt ++ ;
+        stationio.seekp (0, ios::beg) ;
+        stationio.write (reinterpret_cast<char *>(&cnt), sizeof cnt) ;
 
-    void pushPendingOrder (int pos) {
-        pendingOrderIO.seekg (0, ios::beg) ;
-        int l, r, offset = 2 * sizeof (int) ;
-        pendingOrderIO.read (reinterpret_cast<char *>(&l), sizeof l) ;
-        pendingOrderIO.read (reinterpret_cast<char *>(&r), sizeof r) ;
-        r ++ ;
-        pendingOrderIO.seekp (sizeof (int), ios::beg) ;
-        pendingOrderIO.write (reinterpret_cast<char *>(&r), sizeof r) ;
-        pendingOrderIO.seekp (0, ios::end) ;
-        pendingOrderIO.write (reinterpret_cast<char *>(&pos), sizeof pos) ;
+        char stationName[35] ;
+        strcpy (stationName, _stationName) ;
+        stationio.seekp (0, ios::end) ;
+        stationio.write (reinterpret_cast<char *>(&stationName), sizeof (stationName)) ;
     }
 
     void add_user () {
@@ -355,6 +344,14 @@ public:
         for (int i = 1; i <= stationNum; i ++) {
             trainStations.insert (data (stationName[i], write_pos)) ;
         }
+
+        for (int i = 1; i <= stationNum; i ++) {
+            vector<int> pos ;
+            stationNames.find (data (stationName[i], 0), pos) ;
+            if (!pos.empty()) continue ;
+            stationNames.insert (data (stationName[i], 0)) ;
+            add_station (stationName[i]) ;
+        }
     }
 
     void release_train () {
@@ -435,7 +432,6 @@ public:
             }
         }
 
-
         int ticket_cnt = 0 ;
         ticket *tickets = new ticket[train_pos.size()] ;
         for (int i = 0; i < train_pos.size(); i ++) {
@@ -460,7 +456,28 @@ public:
     }
 
     void query_transfer () {
+        if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
+        char *startStationName, *terminalStationName, *date ;
+        bool priority = 0 ;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 's') startStationName = par_val[i] ;
+            else if (par_key[i][1] == 't') terminalStationName = par_val[i] ;
+            else if (par_key[i][1] == 'd') date = par_val[i] ;
+            else priority = strcpy (par_val[i], "time") == 0 ? 0 : 1 ;
+        }
 
+        int stationCnt = 0 ;
+        stationio.seekg (0, ios::beg) ;
+        stationio.read (reinterpret_cast<char *>(&stationCnt), sizeof stationCnt) ;
+        for (int i = 0; i < stationCnt; i ++) {
+            char stationName[35] ;
+            stationio.seekg (sizeof (int) + i * sizeof (stationName), ios::beg) ;
+            stationio.read (reinterpret_cast<char *>(&stationName), sizeof stationName) ;
+            
+            vector<int> pos ;
+            trainStations.find (data (stationName, 0), pos) ;
+            
+        }
     }
 
     void buy_ticket () {
@@ -492,13 +509,13 @@ public:
         if (pos.empty()) throw "train not found" ;
         int train_file_pos = pos[0] ;
         train cur_train = train_read (pos[0]) ;
-        if (!cur_train.runningOnDate (date, startStationName)) throw "no trains on this date" ;
+        if (!cur_train.runningOnDate (date, startStationName)) throw "no trains run on this date" ;
 
         int remainingSeatNum = cur_train.calSeatNum (Time (date, "00:00"), startStationName, terminalStationName) ;
         if (remainingSeatNum < ticketNum && !q) throw "no enough tickets" ;
 
         long long order_price = 1ll * ticketNum * cur_train.calPrice (startStationName, terminalStationName) ;
-        ticket cur_order = ticket (cur_train.getTrainID(), startStationName, terminalStationName, 
+        ticket cur_order = ticket (trainID, startStationName, terminalStationName, 
         cur_train.leavingTime (date, startStationName), 
         cur_train.arrivingTime (date, terminalStationName), 
         order_price, 
@@ -510,7 +527,7 @@ public:
             cur_order.setStatus (pending) ;
             int write_pos = order_write (cur_order) ;
             orders.insert (data (username, write_pos)) ;
-            pushPendingOrder (write_pos) ;
+            pendingOrders.insert (data (trainID, write_pos)) ;
             printf("queue\n") ;
         } else {
             int write_pos = order_write (cur_order) ;
@@ -575,7 +592,18 @@ public:
         cur_train.addSeats (cur_order.getLeavingTime(), cur_order.getFromStation(), cur_order.getToStation(), cur_order.getSeatNum()) ;
         train_write (pos[0], cur_train) ;
 
-        
+        pos.clear() ;
+        pendingOrders.find (data (trainID, 0), pos) ;
+        for (int i = 0; i < pos.size(); i ++) {
+            ticket waiting_order = order_read (pos[i]) ;
+            int remaining_seat_num = cur_train.calSeatNum (waiting_order.getLeavingTime(), waiting_order.getFromStation(), waiting_order.getToStation()) ;
+            if (remaining_seat_num >= waiting_order.getSeatNum()) {
+                waiting_order.setStatus (success) ;
+                cur_train.sellSeats (waiting_order.getLeavingTime(), waiting_order.getFromStation(), waiting_order.getToStation(), waiting_order.getSeatNum()) ;
+                pendingOrders.erase (data (trainID, pos[i])) ;
+                order_write (pos[i], waiting_order) ;
+            }
+        }
     }
 
     void clean () {
