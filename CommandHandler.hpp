@@ -69,6 +69,10 @@ public:
                 query_transfer () ;
             } else if (strcmp (main_op, "buy_ticket") == 0) {
                 buy_ticket () ;
+            } else if (strcmp (main_op, "query_order") == 0) {
+                query_order() ;
+            } else if (strcmp (main_op, "refund_ticket") == 0) {
+                refund_ticket() ;
             }
         } catch (...) {
             printf("-1\n") ;
@@ -132,7 +136,29 @@ public:
         orderio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
     }
 
-    
+    pair<ticket, bool> popPendingOrder () {
+        pendingOrderIO.seekg (0, ios::beg) ;
+        int l, r, offset = 2 * sizeof (int) ;
+        pendingOrderIO.read (reinterpret_cast<char *>(&l), sizeof l) ;
+        pendingOrderIO.read (reinterpret_cast<char *>(&r), sizeof r) ;
+        if (l > r) return make_pair (ticket (), 0) ;
+        int pos ;
+        pendingOrderIO.seekg (offset + l * sizeof (int), ios::beg) ;
+        pendingOrderIO.read (reinterpret_cast<char *>(&pos), sizeof pos) ;
+        return make_pair (order_read (pos), 1) ;
+    }
+
+    void pushPendingOrder (int pos) {
+        pendingOrderIO.seekg (0, ios::beg) ;
+        int l, r, offset = 2 * sizeof (int) ;
+        pendingOrderIO.read (reinterpret_cast<char *>(&l), sizeof l) ;
+        pendingOrderIO.read (reinterpret_cast<char *>(&r), sizeof r) ;
+        r ++ ;
+        pendingOrderIO.seekp (sizeof (int), ios::beg) ;
+        pendingOrderIO.write (reinterpret_cast<char *>(&r), sizeof r) ;
+        pendingOrderIO.seekp (0, ios::end) ;
+        pendingOrderIO.write (reinterpret_cast<char *>(&pos), sizeof pos) ;
+    }
 
     void add_user () {
         if (par_cnt != 6) throw "command wrong format" ;
@@ -480,8 +506,34 @@ public:
         orders.insert (data (username, write_pos)) ;
 
         if (remainingSeatNum < ticketNum) {
-            
+            pushPendingOrder (write_pos) ;
+            printf("queue\n") ;
+        } else {
+            printf("%lld\n", order_price) ;
         }
+        
+    }
+
+    void query_order () {
+        if (par_cnt != 1 || par_key[1][1] != 'u') throw "command wrong format" ;
+        char *username = par_val[1] ;
+        vector<int> pos ;
+        curUsers.find (data (username, 0), pos) ;
+        if (pos.empty()) throw "user not logged in" ;
+
+        pos.clear() ;
+        orders.find (data (username, 0), pos) ;
+        if (pos.empty()) throw "orders not found" ;
+
+        cout << pos.size() << endl ;
+        for (int i = 0; i < pos.size(); i ++) {
+            int file_pos = pos[i] ;
+            ticket cur = order_read (file_pos) ;
+            cout << cur << endl ;
+        }
+    }
+
+    void refund_ticket () {
         
     }
 
