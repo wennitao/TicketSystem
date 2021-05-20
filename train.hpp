@@ -63,22 +63,18 @@ public:
     }
 
     bool runningOnDate (const char *_date, const char *stationName) {
-        Time d1 = saleDate[1], d2 = saleDate[2] ;
-        for (int i = 1; i <= stationNum; i ++) {
-            if (strcmp (stations[i], stationName) == 0) break ;
-            d1 = d1 + travelTimes[i]; d1 = d1 + stopoverTimes[i] ;
-            d2 = d2 + travelTimes[i]; d2 = d2 + stopoverTimes[i] ;
-        }
-        return d1 <= Time (_date, "23:59") && Time (_date, "00:00") <= d2 ;
+        Time start_time = getStartTime (_date, stationName) ;
+        return saleDate[1] <= start_time && start_time <= saleDate[2] ;
     }
 
     bool runningFromTo (const char *from, const char *to) {
-        bool flag = 0 ;
+        bool flag1 = 0, flag2 = 0 ;
         for (int i = 1; i <= stationNum; i ++) {
-            if (strcmp (stations[i], to) == 0) flag = 1 ;
-            if (flag && strcmp (stations[i], from) == 0) return 0 ;
+            if (strcmp (stations[i], from) == 0) flag1 = 1 ;
+            if (strcmp (stations[i], to) == 0) flag2 = 1 ;
+            if (flag2 > flag1) return 0 ;
         }
-        return 1 ;
+        return flag1 && flag2 ;
     }
 
     void print (const char *date) {
@@ -105,8 +101,22 @@ public:
         }
     }
 
-    Time leavingTime (const char *begin_time, const char *station) {
-        Time res = Time (begin_time, startTime.getDayTime());
+    Time getStartTime (const char *date, const char *station) {
+        Time tmp = saleDate[1] ;
+        tmp.setTime (startTime) ;
+        int min = 0 ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], station) == 0) break ;
+            tmp = tmp + travelTimes[i] + stopoverTimes[i] ;
+            min = min + travelTimes[i] + stopoverTimes[i] ;
+        }
+        Time res = Time (date, tmp.getDayTime()) ;
+        res = res - min ;
+        return res ;
+    }
+
+    Time leavingTime (const Time &trainStartTime, const char *station) {
+        Time res = trainStartTime ;
         for (int i = 1; i <= stationNum; i ++) {
             if (strcmp (stations[i], station) == 0) return res + stopoverTimes[i] ;
             res = res + travelTimes[i] + stopoverTimes[i] ;
@@ -114,8 +124,8 @@ public:
         throw "station not found" ;
     }
 
-    Time arrivingTime (const char *begin_time, const char *station) {
-        Time res = Time (begin_time, startTime.getDayTime());
+    Time arrivingTime (const Time &trainStartTime, const char *station) {
+        Time res = trainStartTime ;
         for (int i = 1; i <= stationNum; i ++) {
             if (strcmp (stations[i], station) == 0) return res ;
             res = res + travelTimes[i] + stopoverTimes[i] ;
@@ -145,13 +155,7 @@ public:
     }
 
     int calSeatNum (const Time &_date, const char *from, const char *to) {
-        Time arrivingAtFromTime = saleDate[1] ;
-        arrivingAtFromTime.setTime (startTime) ;
-        for (int i = 1; i <= stationNum; i ++) {
-            if (strcmp (stations[i], from) == 0) break ;
-            arrivingAtFromTime = arrivingAtFromTime + stopoverTimes[i] + travelTimes[i] ;
-        }
-        int days = _date - arrivingAtFromTime ;
+        int days = _date - saleDate[1] ;
         int seatNum = 1e9; bool flag = 0 ;
         for (int i = 1; i <= stationNum; i ++) {
             if (strcmp (stations[i], to) == 0) return seatNum ;
@@ -162,13 +166,7 @@ public:
     }
 
     void sellSeats (const Time &_date, const char *from, const char *to, int sellSeatNum) {
-        Time arrivingAtFromTime = saleDate[1] ;
-        arrivingAtFromTime.setTime (startTime) ;
-        for (int i = 1; i <= stationNum; i ++) {
-            if (strcmp (stations[i], from) == 0) break ;
-            arrivingAtFromTime = arrivingAtFromTime + stopoverTimes[i] + travelTimes[i] ;
-        }
-        int days = _date - arrivingAtFromTime ;
+        int days = _date - saleDate[1] ;
         bool flag = 0 ; 
         for (int i = 1; i <= stationNum; i ++) {
             if (strcmp (stations[i], from) == 0) flag = 1 ;
@@ -178,13 +176,7 @@ public:
     }
 
     void addSeats (const Time &_date, const char *from, const char *to, int sellSeatNum) {
-        Time arrivingAtFromTime = saleDate[1] ;
-        arrivingAtFromTime.setTime (startTime) ;
-        for (int i = 1; i <= stationNum; i ++) {
-            if (strcmp (stations[i], from) == 0) break ;
-            arrivingAtFromTime = arrivingAtFromTime + stopoverTimes[i] + travelTimes[i] ;
-        }
-        int days = _date - arrivingAtFromTime ;
+        int days = _date - saleDate[1] ;
         bool flag = 0 ; 
         for (int i = 1; i <= stationNum; i ++) {
             if (strcmp (stations[i], from) == 0) flag = 1 ;

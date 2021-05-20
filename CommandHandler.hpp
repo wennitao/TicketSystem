@@ -18,7 +18,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[20], par_key[15][5], par_val[15][35] ;
+    char main_op[20], par_key[15][5], par_val[15][4010] ;
     int par_cnt = 1 ;
 
 public:
@@ -333,6 +333,7 @@ public:
                 type = par_val[i][0] ;
             }
         }
+        saleDate[1].setTime (startTime); saleDate[2].setTime(startTime) ;
 
         train cur_train = train (trainID, stationName, startTime, saleDate, type, stationNum, seatNum, prices, travelTimes, stopoverTimes) ;
         vector<int> pos ;
@@ -438,11 +439,12 @@ public:
             train cur_train = train_read (train_pos[i]) ;
             if (!cur_train.runningOnDate (date, startStationName)) continue ;
             if (!cur_train.runningFromTo (startStationName, terminalStationName)) continue ;
+            Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
             tickets[ticket_cnt ++] = ticket (cur_train.getTrainID(), startStationName, terminalStationName, 
-            cur_train.leavingTime (date, startStationName), 
-            cur_train.arrivingTime (date, terminalStationName), 
+            cur_train.leavingTime (trainStartTime, startStationName), 
+            cur_train.arrivingTime (trainStartTime, terminalStationName), 
             cur_train.calPrice (startStationName, terminalStationName), 
-            cur_train.calSeatNum (Time (date, "00:00"), startStationName, terminalStationName), 
+            cur_train.calSeatNum (trainStartTime, startStationName, terminalStationName), 
             cur_train.getTravellingTime (startStationName, terminalStationName), 
             success) ;
         }
@@ -453,6 +455,8 @@ public:
         printf("%d\n", ticket_cnt) ;
         for (int i = 0; i < ticket_cnt; i ++)
             tickets[i].print() ;
+        
+        delete [] tickets ;
     }
 
     void query_transfer () {
@@ -487,15 +491,16 @@ public:
                 train cur_train = train_read (pos[i]) ;
                 if (!cur_train.runningOnDate (date, startStationName)) continue ;
                 if (!cur_train.runningFromTo (startStationName, stationName)) continue ;
+                Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
                 int cur_price = cur_train.calPrice (startStationName, stationName) ;
                 int cur_travelling_time = cur_train.getTravellingTime (startStationName, stationName) ;
                 if (priority == 0 && cur_travelling_time < cost1) {
                     cost1 = cur_travelling_time ;
                     tmp_order_1 = ticket (cur_train.getTrainID(), startStationName, stationName, 
-                    cur_train.leavingTime (date, startStationName), 
-                    cur_train.arrivingTime (date, stationName), 
+                    cur_train.leavingTime (trainStartTime, startStationName), 
+                    cur_train.arrivingTime (trainStartTime, stationName), 
                     cur_price, 
-                    cur_train.calSeatNum (Time (date, "00:00"), startStationName, stationName), 
+                    cur_train.calSeatNum (trainStartTime, startStationName, stationName), 
                     cur_travelling_time, 
                     success) ;
                 }
@@ -503,10 +508,10 @@ public:
                 if (priority == 1 && cur_price < cost1) {
                     cost1 = cur_price ;
                     tmp_order_1 = ticket (cur_train.getTrainID(), startStationName, stationName, 
-                    cur_train.leavingTime (date, startStationName), 
-                    cur_train.arrivingTime (date, stationName), 
+                    cur_train.leavingTime (trainStartTime, startStationName), 
+                    cur_train.arrivingTime (trainStartTime, stationName), 
                     cur_price, 
-                    cur_train.calSeatNum (Time (date, "00:00"), startStationName, stationName), 
+                    cur_train.calSeatNum (trainStartTime, startStationName, stationName), 
                     cur_travelling_time, 
                     success) ;
                 }
@@ -516,15 +521,16 @@ public:
                 train cur_train = train_read (pos[i]) ;
                 if (!cur_train.runningOnDate (date, stationName)) continue ;
                 if (!cur_train.runningFromTo (stationName, terminalStationName)) continue ;
+                Time trainStartTime = cur_train.getStartTime (date, stationName) ;
                 int cur_price = cur_train.calPrice (stationName, terminalStationName) ;
                 int cur_travelling_time = cur_train.getTravellingTime (stationName, terminalStationName) ;
                 if (priority == 0 && cur_travelling_time < cost2) {
                     cost2 = cur_travelling_time ;
                     tmp_order_1 = ticket (cur_train.getTrainID(), stationName, terminalStationName, 
-                    cur_train.leavingTime (date, stationName), 
-                    cur_train.arrivingTime (date, terminalStationName), 
+                    cur_train.leavingTime (trainStartTime, stationName), 
+                    cur_train.arrivingTime (trainStartTime, terminalStationName), 
                     cur_price, 
-                    cur_train.calSeatNum (Time (date, "00:00"), stationName, terminalStationName), 
+                    cur_train.calSeatNum (trainStartTime, stationName, terminalStationName), 
                     cur_travelling_time, 
                     success) ;
                 }
@@ -532,10 +538,10 @@ public:
                 if (priority == 1 && cur_price < cost2) {
                     cost2 = cur_price ;
                     tmp_order_2 = ticket (cur_train.getTrainID(), stationName, terminalStationName, 
-                    cur_train.leavingTime (date, stationName), 
-                    cur_train.arrivingTime (date, terminalStationName), 
+                    cur_train.leavingTime (trainStartTime, stationName), 
+                    cur_train.arrivingTime (trainStartTime, terminalStationName), 
                     cur_price, 
-                    cur_train.calSeatNum (Time (date, "00:00"), stationName, terminalStationName), 
+                    cur_train.calSeatNum (trainStartTime, stationName, terminalStationName), 
                     cur_travelling_time, 
                     success) ;
                 }
@@ -582,13 +588,15 @@ public:
         train cur_train = train_read (pos[0]) ;
         if (!cur_train.runningOnDate (date, startStationName)) throw "no trains run on this date" ;
 
-        int remainingSeatNum = cur_train.calSeatNum (Time (date, "00:00"), startStationName, terminalStationName) ;
+        Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
+
+        int remainingSeatNum = cur_train.calSeatNum (trainStartTime, startStationName, terminalStationName) ;
         if (remainingSeatNum < ticketNum && !q) throw "no enough tickets" ;
 
         long long order_price = 1ll * ticketNum * cur_train.calPrice (startStationName, terminalStationName) ;
         ticket cur_order = ticket (trainID, startStationName, terminalStationName, 
-        cur_train.leavingTime (date, startStationName), 
-        cur_train.arrivingTime (date, terminalStationName), 
+        cur_train.leavingTime (trainStartTime, startStationName), 
+        cur_train.arrivingTime (trainStartTime, terminalStationName), 
         order_price, 
         ticketNum, 
         cur_train.getTravellingTime (startStationName, terminalStationName), 
@@ -603,7 +611,7 @@ public:
         } else {
             int write_pos = order_write (cur_order) ;
             orders.insert (data (username, write_pos)) ;
-            cur_train.sellSeats (Time (date, "00:00"), startStationName, terminalStationName, ticketNum) ;
+            cur_train.sellSeats (trainStartTime, startStationName, terminalStationName, ticketNum) ;
             printf("%lld\n", order_price) ;
             train_write (train_file_pos, cur_train) ;
         }
