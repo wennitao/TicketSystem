@@ -192,6 +192,9 @@ void Database::clear(data &tmp) {
     memset(tmp.str , 0 , sizeof(tmp.str));
     tmp.pos = -1;
 };
+void Database::checkpapa(node &pa) {
+
+}
 void Database::erase(const data &x) {
     pair<int , int> pos = find(x);
     if (pos.first == -1) throw "not found";//这个地方要不要改为返回？
@@ -201,7 +204,7 @@ void Database::erase(const data &x) {
     }
     clear(cur.key[cur.keycnt - 1]);
     cur.keycnt--;
-    if (cur.keycnt >= maxkey/2){
+    if (pos.first == root || cur.keycnt >= maxkey/2){
         disk_write(pos.first , cur);
     } else{
         if (cur.fa == -1){
@@ -215,6 +218,8 @@ void Database::erase(const data &x) {
         node par_node = disk_read(cur.fa);
         if (lbro != -1) lbro_node = disk_read(lbro);
         if (rbro != -1) rbro_node = disk_read(rbro);
+        int son_pos = 0;
+        for (; par_node.son[son_pos] != pos.first ; ++son_pos) {}
         if (lbro != -1 && lbro_node.keycnt > maxkey/2){
             for (int i = cur.keycnt; i > 0 ; --i) {
                 cur.key[i] = cur.key[i - 1];
@@ -222,9 +227,80 @@ void Database::erase(const data &x) {
             cur.key[0] = lbro_node.key[lbro_node.keycnt - 1];
             clear(lbro_node.key[lbro_node.keycnt - 1]);
             lbro_node.keycnt--;
+            cur.keycnt++;
+            par_node.key[son_pos - 1] = cur.key[0];
+            disk_write(pos.first , cur);
+            disk_write(lbro , lbro_node);
+            disk_write(cur.fa , par_node);
+        } else if (rbro != -1 && rbro_node.keycnt > maxkey/2){
+            cur.key[cur.keycnt ++] = rbro_node.key[0];
+            for (int i = 1; i < rbro_node.keycnt; ++i) {
+                rbro_node.key[i - 1] = rbro_node.key[i];
+                clear(rbro_node.key[rbro_node.keycnt - 1]);
+                rbro_node.keycnt--;
+                par_node.key[son_pos] = rbro_node.key[0];
 
+                disk_write(pos.first , cur);
+                disk_write(rbro , rbro_node);
+                disk_write(cur.fa , par_node);
+            }
+        } else{
+            //合并删除
+            //我会尽量去找同父亲的兄弟合并
+            int left_fa = -1;
+            if (lbro != -1){
+                left_fa = lbro_node.fa;
+            }
+            int right_fa = -1;
+            if (rbro != -1){
+                right_fa = rbro_node.fa;
+            }
+            if (left_fa == cur.fa){//左兄弟共父
+                for (int i = son_pos; i < par_node.keycnt; ++i) {
+                    par_node.key[i - 1] = par_node.key[i];
+                    //par_node.son[i] = par_node.son[i + 1];
+                }
+                for (int i = son_pos + 1; i < par_node.keycnt; ++i) {
+                    par_node.son[i - 1] = par_node.son[i];
+                }
+                par_node.son[par_node.keycnt - 1] = -1;
+                clear(par_node.key[par_node.keycnt - 1]);
+                par_node.keycnt--;
+                for (int i = 0; i < cur.keycnt; ++i) {
+                    lbro_node.key[lbro_node.keycnt + i] = cur.key[i];
+                }
+                lbro_node.keycnt += cur.keycnt;
+                cur.keycnt = 0;
+                //此处增加缓存
+                disk_write(left_fa , par_node);
+                disk_write(lbro , lbro_node);
+                disk_write(pos.first , cur);
+            } else {//否则右兄弟共父//不会有没有父亲的情况//父亲之间也会互相借节点，不会使子嗣数量为1
+                for (int i = son_pos + 1 ; i < par_node.keycnt; ++i) {
+                    par_node.key[i - 1] = par_node.key[i];
+                }
+                for (int i = son_pos + 2; i < par_node.keycnt; ++i) {
+                    par_node.son[i - 1] = par_node.son[i];
+                }
+                par_node.son[par_node.keycnt - 1] = -1;
+                clear(par_node.key[par_node.keycnt - 1]);
+                par_node.keycnt--;
+                for (int i = 0; i < rbro_node.keycnt; ++i) {
+                    cur.key[cur.keycnt + i] = rbro_node.key[i];
+                }
+                cur.keycnt += rbro_node.keycnt;
+                rbro_node.keycnt = 0;
+                //此处也要增加缓存
+                disk_write(right_fa , par_node);
+                disk_write(pos.first , cur);
+                disk_write(rbro , rbro_node);
+            }
+            //只有合并删除需要去看非叶节点合并和借的情况
+            checkpapa(par_node);
+            //
         }
     }
+    update_root();
 };
 
 Database::node Database::disk_read(int pos) {
@@ -238,6 +314,7 @@ void Database::disk_write(int pos, node &x) {
     io.write(reinterpret_cast<char *>(&x) , sizeof(node));
 };
 void Database::erase_par(int nod) {
+
 };
 int Database::findKey(const data &x) {
     pair<int , int> pos = find(x);

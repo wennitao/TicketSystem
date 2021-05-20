@@ -77,11 +77,10 @@ public:
     int search(int nod , const data &x);//return where can we insert x
     void update_son_fa(int son , int pa);
     void insert(int &pa , int lchild , int rchild , const data &x);
-
+    void checkpapa(node & pa);
     void insert(const data &x);
     void erase_par(int nod);
     void erase(const data &x);
-
 };
 
 
