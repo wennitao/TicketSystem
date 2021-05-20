@@ -24,6 +24,7 @@ private:
 public:
     CommandHandler () {}
     CommandHandler (string op) {
+        cout << op << endl ;
         command = stringstream (op) ;
     }
 
@@ -599,7 +600,7 @@ public:
         ticket cur_order = ticket (trainID, startStationName, terminalStationName, 
         cur_train.leavingTime (trainStartTime, startStationName), 
         cur_train.arrivingTime (trainStartTime, terminalStationName), 
-        order_price, 
+        cur_train.calPrice (startStationName, terminalStationName), 
         ticketNum, 
         cur_train.getTravellingTime (startStationName, terminalStationName), 
         success) ;
@@ -630,6 +631,8 @@ public:
         pos.clear() ;
         orders.find (data (username, 0), pos) ;
         //if (pos.empty()) throw "orders not found" ;
+
+        reverse (pos.begin(), pos.end()) ;
 
         cout << pos.size() << endl ;
         for (int i = 0; i < pos.size(); i ++) {
@@ -690,7 +693,7 @@ public:
     }
 
     void clean () {
-        
+
     }
 
 } ;
