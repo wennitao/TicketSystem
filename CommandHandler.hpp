@@ -24,7 +24,7 @@ private:
 public:
     CommandHandler () {}
     CommandHandler (string op) {
-        cout << op << endl ;
+        //cout << op << endl ;
         command = stringstream (op) ;
     }
 
@@ -555,8 +555,10 @@ public:
             }
         }
 
-        if (cost > 1e8) throw "no valid trains" ;
-        order_1.print(); order_2.print() ;
+        if (cost > 1e8) printf("0\n") ;
+        else {
+            order_1.print(); order_2.print() ;
+        }
     }
 
     void buy_ticket () {
