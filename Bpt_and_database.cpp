@@ -193,7 +193,7 @@ void Database::clear(data &tmp) {
     tmp.pos = -1;
 };
 void Database::checkpapa(node &pa) {
-
+    //
 }
 void Database::erase(const data &x) {
     pair<int , int> pos = find(x);
