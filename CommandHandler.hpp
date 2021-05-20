@@ -469,15 +469,86 @@ public:
         int stationCnt = 0 ;
         stationio.seekg (0, ios::beg) ;
         stationio.read (reinterpret_cast<char *>(&stationCnt), sizeof stationCnt) ;
+        int cost = 1e9 ;
+        ticket order_1, order_2 ;
         for (int i = 0; i < stationCnt; i ++) {
             char stationName[35] ;
             stationio.seekg (sizeof (int) + i * sizeof (stationName), ios::beg) ;
             stationio.read (reinterpret_cast<char *>(&stationName), sizeof stationName) ;
+
+            if (strcmp (stationName, startStationName) == 0 || strcmp (stationName, terminalStationName) == 0) continue ;
             
+            int cost1 = 1e9, cost2 = 1e9 ;
+            ticket tmp_order_1, tmp_order_2 ;
+
             vector<int> pos ;
             trainStations.find (data (stationName, 0), pos) ;
-            
+            for (int i = 0; i < pos.size(); i ++) {
+                train cur_train = train_read (pos[i]) ;
+                if (!cur_train.runningOnDate (date, startStationName)) continue ;
+                if (!cur_train.runningFromTo (startStationName, stationName)) continue ;
+                int cur_price = cur_train.calPrice (startStationName, stationName) ;
+                int cur_travelling_time = cur_train.getTravellingTime (startStationName, stationName) ;
+                if (priority == 0 && cur_travelling_time < cost1) {
+                    cost1 = cur_travelling_time ;
+                    tmp_order_1 = ticket (cur_train.getTrainID(), startStationName, stationName, 
+                    cur_train.leavingTime (date, startStationName), 
+                    cur_train.arrivingTime (date, stationName), 
+                    cur_price, 
+                    cur_train.calSeatNum (Time (date, "00:00"), startStationName, stationName), 
+                    cur_travelling_time, 
+                    success) ;
+                }
+
+                if (priority == 1 && cur_price < cost1) {
+                    cost1 = cur_price ;
+                    tmp_order_1 = ticket (cur_train.getTrainID(), startStationName, stationName, 
+                    cur_train.leavingTime (date, startStationName), 
+                    cur_train.arrivingTime (date, stationName), 
+                    cur_price, 
+                    cur_train.calSeatNum (Time (date, "00:00"), startStationName, stationName), 
+                    cur_travelling_time, 
+                    success) ;
+                }
+            }
+
+            for (int i = 0; i < pos.size(); i ++) {
+                train cur_train = train_read (pos[i]) ;
+                if (!cur_train.runningOnDate (date, stationName)) continue ;
+                if (!cur_train.runningFromTo (stationName, terminalStationName)) continue ;
+                int cur_price = cur_train.calPrice (stationName, terminalStationName) ;
+                int cur_travelling_time = cur_train.getTravellingTime (stationName, terminalStationName) ;
+                if (priority == 0 && cur_travelling_time < cost2) {
+                    cost2 = cur_travelling_time ;
+                    tmp_order_1 = ticket (cur_train.getTrainID(), stationName, terminalStationName, 
+                    cur_train.leavingTime (date, stationName), 
+                    cur_train.arrivingTime (date, terminalStationName), 
+                    cur_price, 
+                    cur_train.calSeatNum (Time (date, "00:00"), stationName, terminalStationName), 
+                    cur_travelling_time, 
+                    success) ;
+                }
+
+                if (priority == 1 && cur_price < cost2) {
+                    cost2 = cur_price ;
+                    tmp_order_2 = ticket (cur_train.getTrainID(), stationName, terminalStationName, 
+                    cur_train.leavingTime (date, stationName), 
+                    cur_train.arrivingTime (date, terminalStationName), 
+                    cur_price, 
+                    cur_train.calSeatNum (Time (date, "00:00"), stationName, terminalStationName), 
+                    cur_travelling_time, 
+                    success) ;
+                }
+            }
+
+            if (cost1 + cost2 < cost) {
+                cost = cost1 + cost2 ;
+                order_1 = tmp_order_1; order_2 = tmp_order_2 ;
+            }
         }
+
+        if (cost > 1e8) throw "no valid trains" ;
+        order_1.print(); order_2.print() ;
     }
 
     void buy_ticket () {
