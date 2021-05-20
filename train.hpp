@@ -106,7 +106,11 @@ public:
         tmp.setTime (startTime) ;
         int min = 0 ;
         for (int i = 1; i <= stationNum; i ++) {
-            if (strcmp (stations[i], station) == 0) break ;
+            if (strcmp (stations[i], station) == 0) {
+                tmp = tmp + stopoverTimes[i] ;
+                min = min + stopoverTimes[i] ;
+                break ;
+            }
             tmp = tmp + travelTimes[i] + stopoverTimes[i] ;
             min = min + travelTimes[i] + stopoverTimes[i] ;
         }
