@@ -664,6 +664,8 @@ public:
         pos.clear() ;
         orders.find (data (username, 0), pos) ;
         if (pos.empty()) throw "no orders" ;
+        if (pos.size() < order_num) throw "there is no nth order" ;
+        reverse (pos.begin(), pos.end()) ;
 
         ticket cur_order = order_read (pos[order_num - 1]) ;
         if (cur_order.getStatus() != success) throw "can't refund" ;
@@ -695,7 +697,7 @@ public:
     }
 
     void clean () {
-
+        
     }
 
 } ;

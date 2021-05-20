@@ -68,6 +68,6 @@ int main() {
     }
     userio.close() ;
     trainio.close() ;
-    system ("rm -rf curUsers.dat") ;
+    curUsers.clear() ;
     return 0 ;
 }
