@@ -52,7 +52,7 @@ public:
                 modify_profile() ;
             } else if (strcmp (main_op, "exit") == 0) {
                 printf("bye\n") ;
-                exit (0) ;
+                return ;
             } else if (strcmp (main_op, "add_train") == 0) {
                 add_train () ;
                 printf("0\n") ;
@@ -697,7 +697,20 @@ public:
     }
 
     void clean () {
-        
+        users.clear() ;
+        trains.clear() ;
+        trainStations.clear() ;
+        curUsers.clear() ;
+        orders.clear() ;
+        pendingOrders.clear() ;
+        stationNames.clear() ;
+
+        userio.close() ;
+        userio.open ("users.dat", ios::out | ios::binary) ;
+        userio.close() ;
+        userio.open ("users.dat", ios::in | ios::out | ios::binary) ;
+
+        // ...
     }
 
 } ;

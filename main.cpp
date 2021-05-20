@@ -68,6 +68,8 @@ int main() {
     }
     userio.close() ;
     trainio.close() ;
+    orderio.close() ;
+    stationio.close() ;
     curUsers.clear() ;
     return 0 ;
 }
