@@ -115,6 +115,15 @@ public:
         return res ;
     }
 
+    Time getStartTime (const Time &_time, const char *station) {
+        Time tmp = _time ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], station) == 0) return tmp - stopoverTimes[i] ;
+            tmp = tmp - travelTimes[i] - stopoverTimes[i] ;
+        }
+        throw "station not found" ;
+    }
+
     Time leavingTime (const Time &trainStartTime, const char *station) {
         Time res = trainStartTime ;
         for (int i = 1; i <= stationNum; i ++) {

@@ -62,7 +62,7 @@ public:
         return month <= _time.month ;
     }
     void setTime (const Time &_time) {
-        h = _time.h; m = _time.h ;
+        h = _time.h; m = _time.m ;
     }
     pair<int, int> getDayTime () const {
         return make_pair (h, m) ;

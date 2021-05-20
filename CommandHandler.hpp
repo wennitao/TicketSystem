@@ -73,6 +73,7 @@ public:
                 query_order() ;
             } else if (strcmp (main_op, "refund_ticket") == 0) {
                 refund_ticket() ;
+                printf("0\n") ;
             } else if (strcmp (main_op, "clean") == 0) {
                 clean () ;
             }
@@ -591,6 +592,7 @@ public:
         Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
 
         int remainingSeatNum = cur_train.calSeatNum (trainStartTime, startStationName, terminalStationName) ;
+        //cout << remainingSeatNum << endl ;
         if (remainingSeatNum < ticketNum && !q) throw "no enough tickets" ;
 
         long long order_price = 1ll * ticketNum * cur_train.calPrice (startStationName, terminalStationName) ;
@@ -627,7 +629,7 @@ public:
 
         pos.clear() ;
         orders.find (data (username, 0), pos) ;
-        if (pos.empty()) throw "orders not found" ;
+        //if (pos.empty()) throw "orders not found" ;
 
         cout << pos.size() << endl ;
         for (int i = 0; i < pos.size(); i ++) {
@@ -668,17 +670,19 @@ public:
         const char *trainID = cur_order.getTrainID() ;
         trains.find (data (trainID, 0), pos) ;
         train cur_train = train_read (pos[0]) ;
-        cur_train.addSeats (cur_order.getLeavingTime(), cur_order.getFromStation(), cur_order.getToStation(), cur_order.getSeatNum()) ;
+        Time trainStartTime = cur_train.getStartTime (cur_order.getLeavingTime(), cur_order.getFromStation()) ;
+        cur_train.addSeats (trainStartTime, cur_order.getFromStation(), cur_order.getToStation(), cur_order.getSeatNum()) ;
         train_write (pos[0], cur_train) ;
 
         pos.clear() ;
         pendingOrders.find (data (trainID, 0), pos) ;
         for (int i = 0; i < pos.size(); i ++) {
             ticket waiting_order = order_read (pos[i]) ;
-            int remaining_seat_num = cur_train.calSeatNum (waiting_order.getLeavingTime(), waiting_order.getFromStation(), waiting_order.getToStation()) ;
+            Time trainStartTime = cur_train.getStartTime (waiting_order.getLeavingTime(), waiting_order.getFromStation()) ;
+            int remaining_seat_num = cur_train.calSeatNum (trainStartTime, waiting_order.getFromStation(), waiting_order.getToStation()) ;
             if (remaining_seat_num >= waiting_order.getSeatNum()) {
                 waiting_order.setStatus (success) ;
-                cur_train.sellSeats (waiting_order.getLeavingTime(), waiting_order.getFromStation(), waiting_order.getToStation(), waiting_order.getSeatNum()) ;
+                cur_train.sellSeats (trainStartTime, waiting_order.getFromStation(), waiting_order.getToStation(), waiting_order.getSeatNum()) ;
                 pendingOrders.erase (data (trainID, pos[i])) ;
                 order_write (pos[i], waiting_order) ;
             }
@@ -686,7 +690,7 @@ public:
     }
 
     void clean () {
-
+        
     }
 
 } ;
