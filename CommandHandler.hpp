@@ -500,13 +500,16 @@ public:
                     train_2.push_back (pos[j]) ;
             }
 
+            // printf("中转站: %s %d %d\n", stationName, train_1.size(), train_2.size()) ;
+
             for (int j = 0; j < train_1.size(); j ++)
                 for (int k = 0; k < train_2.size(); k ++) {
                     train train1 = train_read (train_1[j]), train2 = train_read (train_2[k]) ;
                     Time train1_startTime = train1.getStartTime (date, startStationName) ;
                     Time train1_arrivingTime = train1.arrivingTime (train1_startTime, stationName) ;
+                    //cout << "train1 start time: " << train1_startTime << " arriving time: " << train1_arrivingTime << endl ;
+                    //cout << train2.runningAfterTime (train1_arrivingTime, stationName) << endl ;
                     if (!train2.runningAfterTime (train1_arrivingTime, stationName)) continue ;
-                    
                     Time train2_startTime = train2.getStartTimeAfterTime (train1_arrivingTime, stationName) ;
                     Time train2_arrivingTime = train2.arrivingTime (train2_startTime, terminalStationName) ;
                     int travellingTime = train2_arrivingTime.calTimeInterval (train1_startTime) ;

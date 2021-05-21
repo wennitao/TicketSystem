@@ -78,11 +78,11 @@ public:
         Time start_tmp = saleDate[1] ;
         start_tmp.setTime (tmp) ;
         if (start_tmp <= saleDate[1]) {
-            tmp.setTime (saleDate[1]); return saleDate[1] <= tmp && tmp <= saleDate[2] ;
+            tmp.setTime (saleDate[1]); return tmp <= saleDate[2] ;
         } else {
             tmp.setTime (saleDate[1]) ;
             tmp = tmp + 24 * 60 ;
-            return saleDate[1] <= tmp && tmp <= saleDate[2] ;
+            return tmp <= saleDate[2] ;
         }
     }
 
@@ -158,11 +158,14 @@ public:
         Time start_tmp = saleDate[1] ;
         start_tmp.setTime (tmp) ;
         if (start_tmp <= saleDate[1]) {
-            tmp.setTime (saleDate[1]); return tmp ;
+            tmp.setTime (saleDate[1]); 
+            if (saleDate[1] <= tmp) return tmp ;
+            else return saleDate[1] ;
         } else {
             tmp.setTime (saleDate[1]) ;
             tmp = tmp + 24 * 60 ;
-            return tmp ;
+            if (saleDate[1] <= tmp) return tmp ;
+            else return saleDate[1] ;
         }
     }
 
