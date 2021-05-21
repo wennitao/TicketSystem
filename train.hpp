@@ -67,6 +67,25 @@ public:
         return saleDate[1] <= start_time && start_time <= saleDate[2] ;
     }
 
+    bool runningAfterTime (const Time &_time, const char *station) {
+        Time tmp = _time ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], station) == 0) {
+                tmp = tmp - stopoverTimes[i]; break ;
+            }
+            tmp = tmp - travelTimes[i] - stopoverTimes[i] ;
+        }
+        Time start_tmp = saleDate[1] ;
+        start_tmp.setTime (tmp) ;
+        if (start_tmp <= saleDate[1]) {
+            tmp.setTime (saleDate[1]); return saleDate[1] <= tmp && tmp <= saleDate[2] ;
+        } else {
+            tmp.setTime (saleDate[1]) ;
+            tmp = tmp + 24 * 60 ;
+            return saleDate[1] <= tmp && tmp <= saleDate[2] ;
+        }
+    }
+
     bool runningFromTo (const char *from, const char *to) {
         bool flag1 = 0, flag2 = 0 ;
         for (int i = 1; i <= stationNum; i ++) {
@@ -126,6 +145,25 @@ public:
             tmp = tmp - travelTimes[i] - stopoverTimes[i] ;
         }
         throw "station not found" ;
+    }
+
+    Time getStartTimeAfterTime (const Time &_time, const char *station) {
+        Time tmp = _time ;
+        for (int i = 1; i <= stationNum; i ++) {
+            if (strcmp (stations[i], station) == 0) {
+                tmp = tmp - stopoverTimes[i]; break ;
+            }
+            tmp = tmp - travelTimes[i] - stopoverTimes[i] ;
+        }
+        Time start_tmp = saleDate[1] ;
+        start_tmp.setTime (tmp) ;
+        if (start_tmp <= saleDate[1]) {
+            tmp.setTime (saleDate[1]); return tmp ;
+        } else {
+            tmp.setTime (saleDate[1]) ;
+            tmp = tmp + 24 * 60 ;
+            return tmp ;
+        }
     }
 
     Time leavingTime (const Time &trainStartTime, const char *station) {

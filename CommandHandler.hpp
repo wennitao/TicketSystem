@@ -151,6 +151,8 @@ public:
         strcpy (stationName, _stationName) ;
         stationio.seekp (0, ios::end) ;
         stationio.write (reinterpret_cast<char *>(&stationName), sizeof (stationName)) ;
+        
+        //printf("after add_station file io ok: %d\n", stationio.good()) ;
     }
 
     void add_user () {
@@ -484,80 +486,69 @@ public:
             stationio.read (reinterpret_cast<char *>(&stationName), sizeof stationName) ;
 
             if (strcmp (stationName, startStationName) == 0 || strcmp (stationName, terminalStationName) == 0) continue ;
-            
-            int cost1 = 1e9, cost2 = 1e9 ;
-            ticket tmp_order_1, tmp_order_2 ;
 
             vector<int> pos ;
             trainStations.find (data (stationName, 0), pos) ;
-            for (int i = 0; i < pos.size(); i ++) {
-                train cur_train = train_read (pos[i]) ;
+            
+            vector<int> train_1, train_2 ;
+            for (int j = 0; j < pos.size(); j ++) {
+                train cur_train = train_read (pos[j]) ;
                 if (!cur_train.getReleaseStatus()) continue ;
-                if (!cur_train.runningOnDate (date, startStationName)) continue ;
-                if (!cur_train.runningFromTo (startStationName, stationName)) continue ;
-                Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
-                int cur_price = cur_train.calPrice (startStationName, stationName) ;
-                int cur_travelling_time = cur_train.getTravellingTime (startStationName, stationName) ;
-                if (priority == 0 && cur_travelling_time < cost1) {
-                    cost1 = cur_travelling_time ;
-                    tmp_order_1 = ticket (cur_train.getTrainID(), startStationName, stationName, 
-                    cur_train.leavingTime (trainStartTime, startStationName), 
-                    cur_train.arrivingTime (trainStartTime, stationName), 
-                    cur_price, 
-                    cur_train.calSeatNum (trainStartTime, startStationName, stationName), 
-                    cur_travelling_time, 
-                    success) ;
-                }
-
-                if (priority == 1 && cur_price < cost1) {
-                    cost1 = cur_price ;
-                    tmp_order_1 = ticket (cur_train.getTrainID(), startStationName, stationName, 
-                    cur_train.leavingTime (trainStartTime, startStationName), 
-                    cur_train.arrivingTime (trainStartTime, stationName), 
-                    cur_price, 
-                    cur_train.calSeatNum (trainStartTime, startStationName, stationName), 
-                    cur_travelling_time, 
-                    success) ;
-                }
+                if (cur_train.runningFromTo (startStationName, stationName) && cur_train.runningOnDate (date, startStationName))
+                    train_1.push_back (pos[j]) ;
+                if (cur_train.runningFromTo (stationName, terminalStationName))
+                    train_2.push_back (pos[j]) ;
             }
 
-            for (int i = 0; i < pos.size(); i ++) {
-                train cur_train = train_read (pos[i]) ;
-                if (!cur_train.getReleaseStatus()) continue ;
-                if (!cur_train.runningOnDate (date, stationName)) continue ;
-                if (!cur_train.runningFromTo (stationName, terminalStationName)) continue ;
-                Time trainStartTime = cur_train.getStartTime (date, stationName) ;
-                int cur_price = cur_train.calPrice (stationName, terminalStationName) ;
-                int cur_travelling_time = cur_train.getTravellingTime (stationName, terminalStationName) ;
-                if (priority == 0 && cur_travelling_time < cost2) {
-                    cost2 = cur_travelling_time ;
-                    tmp_order_2 = ticket (cur_train.getTrainID(), stationName, terminalStationName, 
-                    cur_train.leavingTime (trainStartTime, stationName), 
-                    cur_train.arrivingTime (trainStartTime, terminalStationName), 
-                    cur_price, 
-                    cur_train.calSeatNum (trainStartTime, stationName, terminalStationName), 
-                    cur_travelling_time, 
-                    success) ;
+            for (int j = 0; j < train_1.size(); j ++)
+                for (int k = 0; k < train_2.size(); k ++) {
+                    train train1 = train_read (train_1[j]), train2 = train_read (train_2[k]) ;
+                    Time train1_startTime = train1.getStartTime (date, startStationName) ;
+                    Time train1_arrivingTime = train1.arrivingTime (train1_startTime, stationName) ;
+                    if (!train2.runningAfterTime (train1_arrivingTime, stationName)) continue ;
+                    
+                    Time train2_startTime = train2.getStartTimeAfterTime (train1_arrivingTime, stationName) ;
+                    Time train2_arrivingTime = train2.arrivingTime (train2_startTime, terminalStationName) ;
+                    int travellingTime = train2_arrivingTime.calTimeInterval (train1_startTime) ;
+                    int price1 = train1.calPrice (startStationName, stationName) ;
+                    int price2 = train2.calPrice (stationName, terminalStationName) ;
+
+                    if (priority == 0 && travellingTime < cost) {
+                        cost = travellingTime ;
+                        order_1 = ticket (train1.getTrainID(), startStationName, stationName, 
+                        train1.leavingTime (train1_startTime, startStationName), 
+                        train1_arrivingTime, 
+                        price1, 
+                        train1.calSeatNum (train1_startTime, startStationName, stationName), 
+                        train1.getTravellingTime (startStationName, stationName), 
+                        success) ;
+                        order_2 = ticket (train2.getTrainID(), stationName, terminalStationName, 
+                        train2.leavingTime (train2_startTime, stationName), 
+                        train2_arrivingTime, 
+                        price2, 
+                        train2.calSeatNum (train2_startTime, stationName, terminalStationName), 
+                        train2.getTravellingTime (stationName, terminalStationName), 
+                        success) ;
+                    }
+                    
+                    if (priority == 1 && price1 + price2 < cost) {
+                        cost = price1 + price2 ;
+                        order_1 = ticket (train1.getTrainID(), startStationName, stationName, 
+                        train1.leavingTime (train1_startTime, startStationName), 
+                        train1_arrivingTime, 
+                        price1, 
+                        train1.calSeatNum (train1_startTime, startStationName, stationName), 
+                        train1.getTravellingTime (startStationName, stationName), 
+                        success) ;
+                        order_2 = ticket (train2.getTrainID(), stationName, terminalStationName, 
+                        train2.leavingTime (train2_startTime, stationName), 
+                        train2_arrivingTime, 
+                        price2, 
+                        train2.calSeatNum (train2_startTime, stationName, terminalStationName), 
+                        train2.getTravellingTime (stationName, terminalStationName), 
+                        success) ;
+                    }
                 }
-
-                if (priority == 1 && cur_price < cost2) {
-                    cost2 = cur_price ;
-                    tmp_order_2 = ticket (cur_train.getTrainID(), stationName, terminalStationName, 
-                    cur_train.leavingTime (trainStartTime, stationName), 
-                    cur_train.arrivingTime (trainStartTime, terminalStationName), 
-                    cur_price, 
-                    cur_train.calSeatNum (trainStartTime, stationName, terminalStationName), 
-                    cur_travelling_time, 
-                    success) ;
-                }
-            }
-
-            cout << cost1 << " " << cost2 << endl ;
-
-            if (cost1 + cost2 < cost) {
-                cost = cost1 + cost2 ;
-                order_1 = tmp_order_1; order_2 = tmp_order_2 ;
-            }
         }
 
         if (cost == 1e9) printf("0\n") ;

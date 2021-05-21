@@ -67,6 +67,15 @@ public:
     pair<int, int> getDayTime () const {
         return make_pair (h, m) ;
     }
+
+    int calTimeInterval (const Time &_time) {
+        int day_interval = day - _time.day ;
+        for (int i = _time.month; i < month; i ++) day_interval += days[i] ;
+        int min = m - _time.m ;
+        min += (h - _time.h) * 60 ;
+        min += 24 * 60 * day_interval ;
+        return min ;
+    }
 } ;
 
 ostream& operator << (ostream &out, const Time &_time) {

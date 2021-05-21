@@ -56,7 +56,7 @@ void init () {
         stationio.write (reinterpret_cast<char *>(&x), sizeof x) ;
     }
     in.close() ;
-    if (!orderio.is_open()) stationio.open ("stationNames.dat", ios::in | ios::out | ios::binary) ;
+    if (!stationio.is_open()) stationio.open ("stationNames.dat", ios::in | ios::out | ios::binary) ;
 }
 
 int main() {
