@@ -415,7 +415,7 @@ public:
             if (par_key[i][1] == 's') startStationName = par_val[i] ;
             else if (par_key[i][1] == 't') terminalStationName = par_val[i] ;
             else if (par_key[i][1] == 'd') date = par_val[i] ;
-            else priority = strcpy (par_val[i], "time") == 0 ? 0 : 1 ;
+            else priority = strcmp (par_val[i], "time") == 0 ? 0 : 1 ;
         }
 
         vector<int> start_pos, end_pos, train_pos ;
@@ -439,6 +439,7 @@ public:
         ticket *tickets = new ticket[train_pos.size()] ;
         for (int i = 0; i < train_pos.size(); i ++) {
             train cur_train = train_read (train_pos[i]) ;
+            if (!cur_train.getReleaseStatus()) continue ;
             if (!cur_train.runningOnDate (date, startStationName)) continue ;
             if (!cur_train.runningFromTo (startStationName, terminalStationName)) continue ;
             Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
@@ -469,7 +470,7 @@ public:
             if (par_key[i][1] == 's') startStationName = par_val[i] ;
             else if (par_key[i][1] == 't') terminalStationName = par_val[i] ;
             else if (par_key[i][1] == 'd') date = par_val[i] ;
-            else priority = strcpy (par_val[i], "time") == 0 ? 0 : 1 ;
+            else priority = strcmp (par_val[i], "time") == 0 ? 0 : 1 ;
         }
 
         int stationCnt = 0 ;
@@ -491,6 +492,7 @@ public:
             trainStations.find (data (stationName, 0), pos) ;
             for (int i = 0; i < pos.size(); i ++) {
                 train cur_train = train_read (pos[i]) ;
+                if (!cur_train.getReleaseStatus()) continue ;
                 if (!cur_train.runningOnDate (date, startStationName)) continue ;
                 if (!cur_train.runningFromTo (startStationName, stationName)) continue ;
                 Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
@@ -521,6 +523,7 @@ public:
 
             for (int i = 0; i < pos.size(); i ++) {
                 train cur_train = train_read (pos[i]) ;
+                if (!cur_train.getReleaseStatus()) continue ;
                 if (!cur_train.runningOnDate (date, stationName)) continue ;
                 if (!cur_train.runningFromTo (stationName, terminalStationName)) continue ;
                 Time trainStartTime = cur_train.getStartTime (date, stationName) ;
@@ -528,7 +531,7 @@ public:
                 int cur_travelling_time = cur_train.getTravellingTime (stationName, terminalStationName) ;
                 if (priority == 0 && cur_travelling_time < cost2) {
                     cost2 = cur_travelling_time ;
-                    tmp_order_1 = ticket (cur_train.getTrainID(), stationName, terminalStationName, 
+                    tmp_order_2 = ticket (cur_train.getTrainID(), stationName, terminalStationName, 
                     cur_train.leavingTime (trainStartTime, stationName), 
                     cur_train.arrivingTime (trainStartTime, terminalStationName), 
                     cur_price, 
@@ -549,13 +552,15 @@ public:
                 }
             }
 
+            cout << cost1 << " " << cost2 << endl ;
+
             if (cost1 + cost2 < cost) {
                 cost = cost1 + cost2 ;
                 order_1 = tmp_order_1; order_2 = tmp_order_2 ;
             }
         }
 
-        if (cost > 1e8) printf("0\n") ;
+        if (cost == 1e9) printf("0\n") ;
         else {
             order_1.print(); order_2.print() ;
         }
@@ -595,7 +600,7 @@ public:
         Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
 
         int remainingSeatNum = cur_train.calSeatNum (trainStartTime, startStationName, terminalStationName) ;
-        //cout << remainingSeatNum << endl ;
+        //cout << remainingSeatNum << " " << ticketNum << endl ;
         if (remainingSeatNum < ticketNum && !q) throw "no enough tickets" ;
 
         long long order_price = 1ll * ticketNum * cur_train.calPrice (startStationName, terminalStationName) ;
@@ -676,10 +681,11 @@ public:
         pos.clear() ;
         const char *trainID = cur_order.getTrainID() ;
         trains.find (data (trainID, 0), pos) ;
-        train cur_train = train_read (pos[0]) ;
+        int train_file_pos = pos[0] ;
+        train cur_train = train_read (train_file_pos) ;
         Time trainStartTime = cur_train.getStartTime (cur_order.getLeavingTime(), cur_order.getFromStation()) ;
         cur_train.addSeats (trainStartTime, cur_order.getFromStation(), cur_order.getToStation(), cur_order.getSeatNum()) ;
-        train_write (pos[0], cur_train) ;
+        train_write (train_file_pos, cur_train) ;
 
         pos.clear() ;
         pendingOrders.find (data (trainID, 0), pos) ;
@@ -694,6 +700,7 @@ public:
                 order_write (pos[i], waiting_order) ;
             }
         }
+        train_write (train_file_pos, cur_train) ;
     }
 
     void clean () {

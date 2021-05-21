@@ -13,13 +13,13 @@ def clean_output():
 
 def run_basic_case(id):
     if id <= 2:
-        os.system('./code < data/basic_' + str(id) + '/1.in > output.txt 2>/dev/null')
+        os.system('./main < data/basic_' + str(id) + '/1.in > output.txt 2>/dev/null')
     if 3 <= id <= 4:
         for i in range(1, 6):
-            os.system('./code < data/basic_' + str(id) + '/' + str(i) + '.in >> output.txt 2>/dev/null')
+            os.system('./main < data/basic_' + str(id) + '/' + str(i) + '.in >> output.txt 2>/dev/null')
     if 5 <= id <= 6:
         for i in range(1, 11):
-            os.system('./code < data/basic_' + str(id) + '/' + str(i) + '.in >> output.txt 2>/dev/null')
+            os.system('./main < data/basic_' + str(id) + '/' + str(i) + '.in >> output.txt 2>/dev/null')
 
 
 def run_basic():
