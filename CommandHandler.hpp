@@ -5,6 +5,7 @@
 #include <cstring>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 #include "Database/B+Tree.hpp"
 #include "time.hpp"
