@@ -76,6 +76,17 @@ public:
         min += 24 * 60 * day_interval ;
         return min ;
     }
+
+    const char* getDateString () const {
+        static char date[10] = {0};
+        date[0] = month / 10 + '0' ;
+        date[1] = month % 10 + '0' ;
+        date[2] = '-' ;
+        date[3] = day / 10 + '0' ;
+        date[4] = day % 10 + '0' ;
+        date[5] = 0 ;
+        return date ;
+    }
 } ;
 
 ostream& operator << (ostream &out, const Time &_time) {

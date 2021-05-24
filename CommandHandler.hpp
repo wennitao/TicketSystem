@@ -504,6 +504,7 @@ public:
 
             for (int j = 0; j < train_1.size(); j ++)
                 for (int k = 0; k < train_2.size(); k ++) {
+                    if (train_1[j] == train_2[k]) continue ;
                     train train1 = train_read (train_1[j]), train2 = train_read (train_2[k]) ;
                     Time train1_startTime = train1.getStartTime (date, startStationName) ;
                     Time train1_arrivingTime = train1.arrivingTime (train1_startTime, stationName) ;
@@ -612,6 +613,7 @@ public:
             orders.insert (data (username, write_pos)) ;
             pendingOrders.insert (data (trainID, write_pos)) ;
             printf("queue\n") ;
+            //printf("pending orders insert %s %d\n", trainID, write_pos) ;
         } else {
             int write_pos = order_write (cur_order) ;
             orders.insert (data (username, write_pos)) ;
@@ -619,6 +621,8 @@ public:
             printf("%lld\n", order_price) ;
             train_write (train_file_pos, cur_train) ;
         }
+
+        //cur_train.print (trainStartTime.getDateString()) ;
         
     }
 
@@ -667,8 +671,10 @@ public:
         reverse (pos.begin(), pos.end()) ;
 
         ticket cur_order = order_read (pos[order_num - 1]) ;
-        if (cur_order.getStatus() != success) throw "can't refund" ;
+        if (cur_order.getStatus() == refunded) throw "can't refund" ;
 
+        if (cur_order.getStatus() == pending)
+            pendingOrders.erase (data (cur_order.getTrainID(), pos[order_num - 1])) ;
         cur_order.setStatus (refunded) ;
         order_write (pos[order_num - 1], cur_order) ;
 

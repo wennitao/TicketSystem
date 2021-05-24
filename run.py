@@ -18,6 +18,7 @@ def run_basic_case(id):
     if 3 <= id <= 4:
         for i in range(1, 6):
             os.system('./main < data/basic_' + str(id) + '/' + str(i) + '.in >> output' + str(i) + '.txt 2>/dev/null')
+            print ('comparing output' + str (i))
             os.system('diff output' + str(i) + '.txt data/basic_' + str(id) + '/' + str(i) + '.out')
     if 5 <= id <= 6:
         for i in range(1, 11):
