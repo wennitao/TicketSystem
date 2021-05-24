@@ -503,7 +503,7 @@ public:
         int cost = 1e9 ;
         ticket order_1, order_2 ;
         for (int i = 0; i < stationCnt; i ++) {
-            char stationName[1010] ;
+            char stationName[110] ;
             memset (stationName, 0, sizeof stationName) ;
             stationio.seekg (sizeof (int) + i * sizeof (stationName), ios::beg) ;
             stationio.read (reinterpret_cast<char *>(&stationName), sizeof stationName) ;
