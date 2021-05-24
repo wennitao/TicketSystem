@@ -672,7 +672,8 @@ public:
 
         ticket cur_order = order_read (pos[order_num - 1]) ;
         if (cur_order.getStatus() == refunded) throw "can't refund" ;
-
+        
+        bool is_cur_order_success = cur_order.getStatus() == success ;
         if (cur_order.getStatus() == pending)
             pendingOrders.erase (data (cur_order.getTrainID(), pos[order_num - 1])) ;
         cur_order.setStatus (refunded) ;
@@ -683,9 +684,11 @@ public:
         trains.find (data (trainID, 0), pos) ;
         int train_file_pos = pos[0] ;
         train cur_train = train_read (train_file_pos) ;
-        Time trainStartTime = cur_train.getStartTime (cur_order.getLeavingTime(), cur_order.getFromStation()) ;
-        cur_train.addSeats (trainStartTime, cur_order.getFromStation(), cur_order.getToStation(), cur_order.getSeatNum()) ;
-        train_write (train_file_pos, cur_train) ;
+        if (is_cur_order_success) {
+            Time trainStartTime = cur_train.getStartTime (cur_order.getLeavingTime(), cur_order.getFromStation()) ;
+            cur_train.addSeats (trainStartTime, cur_order.getFromStation(), cur_order.getToStation(), cur_order.getSeatNum()) ;
+            train_write (train_file_pos, cur_train) ;
+        }
 
         pos.clear() ;
         pendingOrders.find (data (trainID, 0), pos) ;
