@@ -19,7 +19,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[20], par_key[15][5], par_val[15][4010] ;
+    char main_op[20] = {0}, par_key[15][5], par_val[15][4010] ;
     int par_cnt = 1 ;
 
 public:
@@ -38,6 +38,7 @@ public:
     void run () {
         try {
             analyze() ;
+            if (strlen (main_op) == 0) return ;
             if (strcmp (main_op, "add_user") == 0) {
                 add_user () ;
                 printf("0\n") ;
