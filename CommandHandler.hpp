@@ -719,13 +719,6 @@ public:
         orders.clear() ;
         pendingOrders.clear() ;
         stationNames.clear() ;
-
-        userio.close() ;
-        userio.open ("users.dat", ios::out | ios::binary) ;
-        userio.close() ;
-        userio.open ("users.dat", ios::in | ios::out | ios::binary) ;
-
-        // ...
     }
 
 } ;
