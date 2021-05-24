@@ -19,7 +19,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[110] = {0}, par_key[110][110], par_val[110][40010] ;
+    char main_op[110] = {0}, par_key[15][110], par_val[15][40010] ;
     int par_cnt = 1 ;
 
 public:
@@ -149,7 +149,7 @@ public:
         stationio.seekp (0, ios::beg) ;
         stationio.write (reinterpret_cast<char *>(&cnt), sizeof cnt) ;
 
-        char stationName[35] ;
+        char stationName[110] ;
         strcpy (stationName, _stationName) ;
         stationio.seekp (0, ios::end) ;
         stationio.write (reinterpret_cast<char *>(&stationName), sizeof (stationName)) ;
@@ -292,7 +292,7 @@ public:
     void add_train () {
         if (par_cnt != 10) throw "command wrong format" ;
         Time saleDate[3], startTime ;
-        char stationName[110][30] = {0} ;
+        char stationName[110][110] = {0} ;
         char *trainID, type ;
         int stationNum = 0, seatNum = 0, prices[110] = {0}, travelTimes[110] = {0}, stopoverTimes[110] = {0};
         for (int i = 1; i <= par_cnt; i ++) {

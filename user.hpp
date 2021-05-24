@@ -12,7 +12,7 @@ class user {
     friend ostream& operator << (ostream &out, const user &_user) ;
 
 private:
-    char username[25], password[35], name[30], mailAddr[35] ;
+    char username[110], password[110], name[110], mailAddr[110] ;
     int privilege ;
 
 public:
