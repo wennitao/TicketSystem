@@ -19,7 +19,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[110], par_key[15][35], par_val[15][4010] ;
+    char main_op[110], par_key[15][35], par_val[15][10010] ;
     int par_cnt = 1 ;
 
 public:
@@ -300,7 +300,7 @@ public:
     void add_train () {
         if (par_cnt != 10) throw "command wrong format" ;
         Time saleDate[3], startTime ;
-        char stationName[110][1010], type ;
+        char stationName[110][110], type ;
         const char *trainID ;
         int stationNum = 0, seatNum = 0, prices[110], travelTimes[110], stopoverTimes[110] ;
         memset (stationName, 0, sizeof stationName) ;
@@ -342,7 +342,7 @@ public:
                     else stopoverTimes[curid] = stopoverTimes[curid] * 10 + par_val[i][cur] - '0' ;
                 }
             } else if (par_key[i][1] == 'd') {
-                char tmp[1010] = {0} ;
+                char tmp[110] = {0} ;
                 for (int j = 0; j < 5; j ++) tmp[j] = par_val[i][j] ;
                 saleDate[1] = Time (tmp, "00:00") ;
                 for (int j = 6; j < 11; j ++) tmp[j - 6] = par_val[i][j] ;
