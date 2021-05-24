@@ -5,6 +5,7 @@
 #include <cstring>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 #include "Database/B+Tree.hpp"
 #include "time.hpp"
@@ -18,7 +19,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[20], par_key[15][5], par_val[15][4010] ;
+    char main_op[110] = {0}, par_key[15][110], par_val[15][40010] ;
     int par_cnt = 1 ;
 
 public:
@@ -37,6 +38,7 @@ public:
     void run () {
         try {
             analyze() ;
+            if (strlen (main_op) == 0) return ;
             if (strcmp (main_op, "add_user") == 0) {
                 add_user () ;
                 printf("0\n") ;
@@ -147,7 +149,7 @@ public:
         stationio.seekp (0, ios::beg) ;
         stationio.write (reinterpret_cast<char *>(&cnt), sizeof cnt) ;
 
-        char stationName[35] ;
+        char stationName[110] ;
         strcpy (stationName, _stationName) ;
         stationio.seekp (0, ios::end) ;
         stationio.write (reinterpret_cast<char *>(&stationName), sizeof (stationName)) ;
@@ -290,7 +292,7 @@ public:
     void add_train () {
         if (par_cnt != 10) throw "command wrong format" ;
         Time saleDate[3], startTime ;
-        char stationName[110][30] = {0} ;
+        char stationName[110][110] = {0} ;
         char *trainID, type ;
         int stationNum = 0, seatNum = 0, prices[110] = {0}, travelTimes[110] = {0}, stopoverTimes[110] = {0};
         for (int i = 1; i <= par_cnt; i ++) {
@@ -720,12 +722,25 @@ public:
         pendingOrders.clear() ;
         stationNames.clear() ;
 
-        userio.close() ;
-        userio.open ("users.dat", ios::out | ios::binary) ;
-        userio.close() ;
-        userio.open ("users.dat", ios::in | ios::out | ios::binary) ;
+        // userio.close() ;
+        // userio.open ("users.dat", ios::out | ios::binary) ;
+        // userio.close() ;
+        // userio.open ("users.dat", ios::in | ios::out | ios::binary) ;
 
-        // ...
+        // trainio.close() ;
+        // trainio.open ("trains.dat", ios::out | ios::binary) ;
+        // trainio.close() ;
+        // trainio.open ("trains.dat", ios::in | ios::out | ios::binary) ;
+
+        // orderio.close() ;
+        // orderio.open ("orders.dat", ios::out | ios::binary) ;
+        // orderio.close() ;
+        // orderio.open ("orders.dat", ios::in | ios::out | ios::binary) ;
+
+        // stationio.close() ;
+        // stationio.open ("stationNames.dat", ios::out | ios::binary) ;
+        // stationio.close() ;
+        // stationio.open ("stationNames.dat", ios::in | ios::out | ios::binary) ;
     }
 
 } ;
