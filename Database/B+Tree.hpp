@@ -1,7 +1,10 @@
 #ifndef _BPlusTree
 #define _BPlusTree
 
-#include <bits/stdc++.h>
+#include <iostream>
+#include <cstdio>
+#include <fstream>
+#include <algorithm>
 
 #include "data.hpp"
 

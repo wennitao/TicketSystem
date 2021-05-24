@@ -19,7 +19,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[110] = {0}, par_key[110][110], par_val[110][40010] ;
+    char main_op[110] = {0}, par_key[110][110], par_val[110][110] ;
     int par_cnt = 1 ;
 
 public:
@@ -330,7 +330,7 @@ public:
                     else stopoverTimes[curid] = stopoverTimes[curid] * 10 + par_val[i][cur] - '0' ;
                 }
             } else if (par_key[i][1] == 'd') {
-                char tmp[10] = {0} ;
+                char tmp[110] = {0} ;
                 for (int j = 0; j < 5; j ++) tmp[j] = par_val[i][j] ;
                 saleDate[1] = Time (tmp, "00:00") ;
                 for (int j = 6; j < 11; j ++) tmp[j - 6] = par_val[i][j] ;
@@ -487,7 +487,7 @@ public:
         int cost = 1e9 ;
         ticket order_1, order_2 ;
         for (int i = 0; i < stationCnt; i ++) {
-            char stationName[35] ;
+            char stationName[110] ;
             stationio.seekg (sizeof (int) + i * sizeof (stationName), ios::beg) ;
             stationio.read (reinterpret_cast<char *>(&stationName), sizeof stationName) ;
 
