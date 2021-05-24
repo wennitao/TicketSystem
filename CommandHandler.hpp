@@ -536,7 +536,7 @@ public:
                     if (!train2.runningAfterTime (train1_arrivingTime, stationName)) continue ;
                     Time train2_startTime = train2.getStartTimeAfterTime (train1_arrivingTime, stationName) ;
                     Time train2_arrivingTime = train2.arrivingTime (train2_startTime, terminalStationName) ;
-                    int travellingTime = train2_arrivingTime.calTimeInterval (train1.arrivingTime (train1_startTime, startStationName)) ;
+                    int travellingTime = train2_arrivingTime.calTimeInterval (train1.leavingTime (train1_startTime, startStationName)) ;
                     //cout << train1_startTime << " " << train2_arrivingTime << " " << travellingTime << endl ;
                     int price1 = train1.calPrice (startStationName, stationName) ;
                     int price2 = train2.calPrice (stationName, terminalStationName) ;
