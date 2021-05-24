@@ -11,6 +11,7 @@ struct data {
         pos = -1 ;
     }
     data (const char *_str, int p) {
+        memset (str, 0, sizeof str) ;
         strcpy (str, _str) ;
         pos = p ;
     }

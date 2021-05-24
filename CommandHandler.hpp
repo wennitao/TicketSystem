@@ -19,12 +19,20 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[110] = {0}, par_key[110][1010], par_val[110][1010] ;
+    char main_op[110], par_key[110][1010], par_val[110][1010] ;
     int par_cnt = 1 ;
 
 public:
-    CommandHandler () {}
+    CommandHandler () {
+        memset (main_op, 0, sizeof main_op) ;
+        memset (par_key, 0, sizeof par_key) ;
+        memset (par_val, 0, sizeof par_val) ;
+    }
     CommandHandler (string op) {
+        memset (main_op, 0, sizeof main_op) ;
+        memset (par_key, 0, sizeof par_key) ;
+        memset (par_val, 0, sizeof par_val) ;
+
         //cout << op << endl ;
         command = stringstream (op) ;
     }
@@ -292,9 +300,13 @@ public:
     void add_train () {
         if (par_cnt != 10) throw "command wrong format" ;
         Time saleDate[3], startTime ;
-        char stationName[110][1010] = {0} ;
+        char stationName[110][1010] ;
         char *trainID, type ;
-        int stationNum = 0, seatNum = 0, prices[110] = {0}, travelTimes[110] = {0}, stopoverTimes[110] = {0};
+        int stationNum = 0, seatNum = 0, prices[110], travelTimes[110], stopoverTimes[110] ;
+        memset (stationName, 0, sizeof stationName) ;
+        memset (prices, 0, sizeof prices) ;
+        memset (travelTimes, 0, sizeof travelTimes) ;
+        memset (stopoverTimes, 0, sizeof stopoverTimes) ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
             else if (par_key[i][1] == 'n') {
@@ -441,6 +453,10 @@ public:
             }
         }
 
+        if (train_pos.size() == 0) {
+            printf("0\n"); return ;
+        }
+
         int ticket_cnt = 0 ;
         ticket *tickets = new ticket[train_pos.size()] ;
         for (int i = 0; i < train_pos.size(); i ++) {
@@ -488,6 +504,7 @@ public:
         ticket order_1, order_2 ;
         for (int i = 0; i < stationCnt; i ++) {
             char stationName[1010] ;
+            memset (stationName, 0, sizeof stationName) ;
             stationio.seekg (sizeof (int) + i * sizeof (stationName), ios::beg) ;
             stationio.read (reinterpret_cast<char *>(&stationName), sizeof stationName) ;
 

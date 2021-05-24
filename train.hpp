@@ -18,9 +18,15 @@ private:
     bool released = 0 ;
 
 public:
-    train () {}
+    train () {
+        memset (trainID, 0, sizeof trainID) ;
+        memset (stations, 0, sizeof stations) ;
+    }
     train (const char *_trainID, const char _stations[110][1010], const Time _startTime, const Time _saleDate[3], 
     const char _type, int _stationNum, int _seatNum, int *_prices, int *_travelTimes, int *_stopoverTimes) {
+        memset (trainID, 0, sizeof trainID) ;
+        memset (stations, 0, sizeof stations) ;
+
         stationNum = _stationNum; seatNum = _seatNum; type = _type ;
         strcpy (trainID, _trainID) ;
         for (int i = 1; i <= stationNum; i ++) strcpy (stations[i], _stations[i]) ;

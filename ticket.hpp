@@ -23,8 +23,15 @@ private:
     Status status ;
 
 public:
-    ticket () {}
+    ticket () {
+        memset (trainID, 0, sizeof trainID) ;
+        memset (from, 0, sizeof from) ;
+        memset (to, 0, sizeof to) ;
+    }
     ticket (const char *_trainID, const char *_from, const char *_to, const Time &_leaving_time, const Time &_arriving_time, const int _price, const int _seat_num, const int _travellingTime, const Status _status) {
+        memset (trainID, 0, sizeof trainID) ;
+        memset (from, 0, sizeof from) ;
+        memset (to, 0, sizeof to) ;
         strcpy (trainID, _trainID) ;
         strcpy (from, _from) ;
         strcpy (to, _to) ;
