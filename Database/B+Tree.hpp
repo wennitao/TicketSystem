@@ -59,6 +59,16 @@ public:
         io.close() ;
     }
 
+    void clear() {
+        io.close() ;
+        root = -1; node_cnt = 0 ;
+        fstream out (file_name, ios::out | ios::binary) ;
+        out.write (reinterpret_cast<char *>(&root), sizeof root) ;
+        out.write (reinterpret_cast<char *>(&node_cnt), sizeof node_cnt) ;
+        out.close() ;
+        io.open (file_name, ios::in | ios::out | ios::binary) ;
+    }
+
     bool empty() {
         return root == -1 || disk_read (root).keyCnt == 0 ;
     }
