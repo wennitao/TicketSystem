@@ -19,7 +19,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[110], par_key[15][10010], par_val[15][10010] ;
+    char main_op[110], par_key[15][35], par_val[15][4010] ;
     int par_cnt = 1 ;
 
 public:
@@ -102,9 +102,6 @@ public:
 
     int user_write (user &cur) {
         userio.seekp (0, ios::end) ;
-        if (!userio.good()) {
-            int *tmp; tmp = new int [1000000000] ;
-        }
         int pos = userio.tellp() ;
         userio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
         return pos ;
