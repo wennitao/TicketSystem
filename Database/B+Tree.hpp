@@ -1,7 +1,10 @@
 #ifndef _BPlusTree
 #define _BPlusTree
 
-#include <bits/stdc++.h>
+#include <iostream>
+#include <cstdio>
+#include <fstream>
+#include <algorithm>
 
 #include "data.hpp"
 
@@ -16,7 +19,7 @@ private:
         bool is_leaf ;
         int keyCnt ;
         int par, son[size + 3] ;
-        data key[size + 1] ;
+        my_data key[size + 1] ;
 
         node () {
             is_leaf = 1; keyCnt = 0; par = -1 ;
@@ -88,7 +91,7 @@ public:
         print (root) ;
     }
 
-    void clear (data &tmp) {
+    void clear (my_data &tmp) {
         memset (tmp.str, 0, sizeof tmp.str); tmp.pos = -1 ;
     }
 
@@ -110,7 +113,7 @@ public:
         io.write (reinterpret_cast<char *>(&node_cnt), sizeof node_cnt) ;
     }
 
-    pair<int, int> find (int v, const data &x) { //find node == x
+    pair<int, int> find (int v, const my_data &x) { //find node == x
         if  (v == -1) return make_pair (-1, -1) ;
         node cur = disk_read (v) ;
         int pos = 0 ;
@@ -124,7 +127,7 @@ public:
         }
     }
 
-    void find (int v, const data &x, vector<int> &res) { //find node == x
+    void find (int v, const my_data &x, vector<int> &res) { //find node == x
         if (v == -1) return ;
         node cur = disk_read (v) ;
         int pos = 0 ;
@@ -149,21 +152,21 @@ public:
         }
     }
 
-    pair<int, int> find (const data &x) {
+    pair<int, int> find (const my_data &x) {
         return find (root, x) ;
     }
-    int findKey (const data &x) {
+    int findKey (const my_data &x) {
         pair<int, int> pos = find (x) ;
         if (pos.first == -1) return -1 ;
         node cur = disk_read (pos.first) ;
         return cur.key[pos.second].pos ;
     }
 
-    void find (const data &x, vector<int> &res) {
+    void find (const my_data &x, vector<int> &res) {
         find (root, x, res) ;
     }
 
-    int search (int v, const data &x) { //find the leaf_node where can insert x
+    int search (int v, const my_data &x) { //find the leaf_node where can insert x
         node cur = disk_read (v) ;
         if (cur.is_leaf) return v ;
         int pos = 0 ;
@@ -180,7 +183,7 @@ public:
         disk_write (son, cur) ;
     }
 
-    void insert (int &fa, int lchild, int rchild, const data &x) {
+    void insert (int &fa, int lchild, int rchild, const my_data &x) {
         if (fa == -1) {
             fa = (node_cnt ++) * node_size ;
             node par_node ;
@@ -217,7 +220,7 @@ public:
                 update_son_fa (par_node.son[par_node.keyCnt], nxt_node_pos) ;
 
                 par_node.keyCnt = size / 2 ;
-                data tmp = par_node.key[size / 2] ;
+                my_data tmp = par_node.key[size / 2] ;
                 clear (par_node.key[size / 2]) ;
                 disk_write (fa, par_node); disk_write (nxt_node_pos, nxt_node) ;
                 insert (par_node.par, fa, nxt_node_pos, tmp) ;
@@ -225,7 +228,7 @@ public:
         }
     }
 
-    void insert (const data &x) {
+    void insert (const my_data &x) {
         if (root == -1) {
             node cur ;
             cur.key[cur.keyCnt ++] = x ;
@@ -355,7 +358,7 @@ public:
         }
     }
 
-    void erase (const data &x) {
+    void erase (const my_data &x) {
         pair<int, int> pos = find (x) ;
         if (pos.first == -1) throw "not found" ;
         node cur = disk_read (pos.first) ;

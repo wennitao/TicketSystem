@@ -19,12 +19,20 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[110] = {0}, par_key[15][110], par_val[15][40010] ;
+    char main_op[110], par_key[15][35], par_val[15][4010] ;
     int par_cnt = 1 ;
 
 public:
-    CommandHandler () {}
+    CommandHandler () {
+        memset (main_op, 0, sizeof main_op) ;
+        memset (par_key, 0, sizeof par_key) ;
+        memset (par_val, 0, sizeof par_val) ;
+    }
     CommandHandler (string op) {
+        memset (main_op, 0, sizeof main_op) ;
+        memset (par_key, 0, sizeof par_key) ;
+        memset (par_val, 0, sizeof par_val) ;
+
         //cout << op << endl ;
         command = stringstream (op) ;
     }
@@ -149,7 +157,7 @@ public:
         stationio.seekp (0, ios::beg) ;
         stationio.write (reinterpret_cast<char *>(&cnt), sizeof cnt) ;
 
-        char stationName[110] ;
+        char stationName[1010] ;
         strcpy (stationName, _stationName) ;
         stationio.seekp (0, ios::end) ;
         stationio.write (reinterpret_cast<char *>(&stationName), sizeof (stationName)) ;
@@ -159,7 +167,7 @@ public:
 
     void add_user () {
         if (par_cnt != 6) throw "command wrong format" ;
-        char *cur_username, *username, *password, *name, *mailAddr ;
+        const char *cur_username, *username, *password, *name, *mailAddr ;
         int p = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'c') cur_username = par_val[i] ;
@@ -178,9 +186,9 @@ public:
             p = 10 ;
         } else {
             vector<int> pos ;
-            users.find (data (username, 0), pos) ;
+            users.find (my_data (username, 0), pos) ;
             if (!pos.empty()) throw "user already exists" ;
-            curUsers.find (data (cur_username, 0), pos) ;
+            curUsers.find (my_data (cur_username, 0), pos) ;
             if (pos.empty()) throw "current user not logged in" ;
             user cur_user = user_read (pos[0]) ;
             if (cur_user.getPrivilege() <= p) throw "no enough privilege" ;
@@ -191,12 +199,12 @@ public:
     void add_user (const char *username, const char *password, const char *name, const char *mailAddr, int p) {
         user cur_user = user (username, password, name, mailAddr, p) ;
         int pos = user_write (cur_user) ;
-        users.insert (data (username, pos)) ;
+        users.insert (my_data (username, pos)) ;
     }
 
     void login () {
         if (par_cnt != 2) throw "command wrong format" ;
-        char *username, *password ;
+        const char *username, *password ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'u') username = par_val[i] ;
             else if (par_key[i][1] == 'p') password = par_val[i] ;
@@ -207,14 +215,14 @@ public:
 
     void login (const char *username, const char *password) {
         vector<int> pos ;
-        users.find (data (username, 0), pos) ;
+        users.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "user not found" ;
         user targ_user = user_read (pos[0]); int targ_pos = pos[0] ;
         pos.clear() ;
-        curUsers.find (data (username, 0), pos) ;
+        curUsers.find (my_data (username, 0), pos) ;
         if (!pos.empty()) throw "already logged in" ;
         targ_user.login (password) ; 
-        curUsers.insert (data (username, targ_pos)) ;
+        curUsers.insert (my_data (username, targ_pos)) ;
     }
 
     void logout () {
@@ -226,25 +234,25 @@ public:
 
     void logout (char *username) {
         vector<int> pos ;
-        curUsers.find (data (username, 0), pos) ;
+        curUsers.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "not logged in" ;
-        curUsers.erase (data (username, pos[0])) ;
+        curUsers.erase (my_data (username, pos[0])) ;
     }
 
     void query_profile () {
         if (par_cnt != 2) throw "command wrong format" ;
-        char *cur_username, *username ;
+        const char *cur_username, *username ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'c') cur_username = par_val[i] ;
             else if (par_key[i][1] == 'u') username = par_val[i] ;
             else throw "command wrong format" ;
         }
         vector<int> pos ;
-        curUsers.find (data (cur_username, 0), pos) ;
+        curUsers.find (my_data (cur_username, 0), pos) ;
         if (pos.empty()) throw "not logged in" ;
         user cur_user = user_read (pos[0]) ;
         pos.clear() ;
-        users.find (data (username, 0), pos) ;
+        users.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "user not exists" ;
         user targ_user = user_read (pos[0]) ;
         if (cur_user.getPrivilege() <= targ_user.getPrivilege() && strcmp (cur_username, username) != 0) throw "no enough privilege" ;
@@ -254,7 +262,7 @@ public:
     void modify_profile () {
         if (par_cnt < 2 || par_cnt > 6) throw "command wrong format" ; 
         bool c = 0, u = 0 ;
-        char *cur_username = nullptr, *username = nullptr, *password = nullptr, *name = nullptr, *mailAddr = nullptr; int p = -1 ;
+        const char *cur_username = nullptr, *username = nullptr, *password = nullptr, *name = nullptr, *mailAddr = nullptr; int p = -1 ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'c') c = 1, cur_username = par_val[i] ;
             else if (par_key[i][1] == 'u') u = 1, username = par_val[i] ;
@@ -272,11 +280,11 @@ public:
         if (!c || !u) throw "command wrong format" ;
 
         vector<int> pos ;
-        curUsers.find (data (cur_username, 0), pos) ;
+        curUsers.find (my_data (cur_username, 0), pos) ;
         if (pos.empty()) throw "user not logged in" ;
         user cur_user = user_read (pos[0]) ;
         pos.clear() ;
-        users.find (data (username, 0), pos) ;
+        users.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "user not exists" ;
         user targ_user = user_read (pos[0]) ;
         if ((cur_user.getPrivilege() <= targ_user.getPrivilege() && strcmp (cur_username, username) != 0) || cur_user.getPrivilege() <= p) throw "privilege invalid" ;
@@ -292,9 +300,13 @@ public:
     void add_train () {
         if (par_cnt != 10) throw "command wrong format" ;
         Time saleDate[3], startTime ;
-        char stationName[110][110] = {0} ;
-        char *trainID, type ;
-        int stationNum = 0, seatNum = 0, prices[110] = {0}, travelTimes[110] = {0}, stopoverTimes[110] = {0};
+        char stationName[110][1010], type ;
+        const char *trainID ;
+        int stationNum = 0, seatNum = 0, prices[110], travelTimes[110], stopoverTimes[110] ;
+        memset (stationName, 0, sizeof stationName) ;
+        memset (prices, 0, sizeof prices) ;
+        memset (travelTimes, 0, sizeof travelTimes) ;
+        memset (stopoverTimes, 0, sizeof stopoverTimes) ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
             else if (par_key[i][1] == 'n') {
@@ -330,7 +342,7 @@ public:
                     else stopoverTimes[curid] = stopoverTimes[curid] * 10 + par_val[i][cur] - '0' ;
                 }
             } else if (par_key[i][1] == 'd') {
-                char tmp[10] = {0} ;
+                char tmp[1010] = {0} ;
                 for (int j = 0; j < 5; j ++) tmp[j] = par_val[i][j] ;
                 saleDate[1] = Time (tmp, "00:00") ;
                 for (int j = 6; j < 11; j ++) tmp[j - 6] = par_val[i][j] ;
@@ -343,29 +355,29 @@ public:
 
         train cur_train = train (trainID, stationName, startTime, saleDate, type, stationNum, seatNum, prices, travelTimes, stopoverTimes) ;
         vector<int> pos ;
-        trains.find (data (trainID, 0), pos) ;
+        trains.find (my_data (trainID, 0), pos) ;
         if (!pos.empty()) throw "train already exists" ;
         int write_pos = train_write (cur_train) ;
-        trains.insert (data (trainID, write_pos)) ;
+        trains.insert (my_data (trainID, write_pos)) ;
 
         for (int i = 1; i <= stationNum; i ++) {
-            trainStations.insert (data (stationName[i], write_pos)) ;
+            trainStations.insert (my_data (stationName[i], write_pos)) ;
         }
 
         for (int i = 1; i <= stationNum; i ++) {
             vector<int> pos ;
-            stationNames.find (data (stationName[i], 0), pos) ;
+            stationNames.find (my_data (stationName[i], 0), pos) ;
             if (!pos.empty()) continue ;
-            stationNames.insert (data (stationName[i], 0)) ;
+            stationNames.insert (my_data (stationName[i], 0)) ;
             add_station (stationName[i]) ;
         }
     }
 
     void release_train () {
         if (par_cnt != 1 || par_key[1][1] != 'i') throw "command wrong format" ;
-        char *trainID = par_val[1] ;
+        const char *trainID = par_val[1] ;
         vector<int> pos ;
-        trains.find (data (trainID, 0), pos) ;
+        trains.find (my_data (trainID, 0), pos) ;
         if (pos.empty()) throw "train not exists" ;
         train cur = train_read (pos[0]) ;
         cur.release() ;
@@ -374,13 +386,13 @@ public:
 
     void query_train () {
         if (par_cnt != 2) throw "command wrong format" ;
-        char *trainID, *date ;
+        const char *trainID, *date ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
             else if (par_key[i][1] == 'd') date = par_val[i] ;
         }
         vector<int> pos ;
-        trains.find (data (trainID, 0), pos) ;
+        trains.find (my_data (trainID, 0), pos) ;
         if (pos.empty()) throw "train not exists" ;
         train cur = train_read (pos[0]) ;
         if (!cur.runningOnDate (date)) throw "train not runs on this date" ;
@@ -389,17 +401,17 @@ public:
 
     void delete_train () {
         if (par_cnt != 1 || par_key[1][1] != 'i') throw "command wrong format" ;
-        char *trainID = par_val[1] ;
+        const char *trainID = par_val[1] ;
         vector<int> pos ;
-        trains.find (data (trainID, 0), pos) ;
+        trains.find (my_data (trainID, 0), pos) ;
         if (pos.empty()) throw "train not found" ;
         train cur_train = train_read (pos[0]) ;
         if (cur_train.getReleaseStatus()) throw "already released" ;
-        trains.erase (data (trainID, pos[0])) ;
+        trains.erase (my_data (trainID, pos[0])) ;
 
         int stationNum = cur_train.getStationNum() ;
         for (int i = 1; i <= stationNum; i ++) {
-            trainStations.erase (data (cur_train.getStationName (i), pos[0])) ;
+            trainStations.erase (my_data (cur_train.getStationName (i), pos[0])) ;
         }
     }
 
@@ -415,7 +427,7 @@ public:
 
     void query_ticket () {
         if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
-        char *startStationName, *terminalStationName, *date ;
+        const char *startStationName, *terminalStationName, *date ;
         bool priority = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 's') startStationName = par_val[i] ;
@@ -425,8 +437,8 @@ public:
         }
 
         vector<int> start_pos, end_pos, train_pos ;
-        trainStations.find (data (startStationName, 0), start_pos) ;
-        trainStations.find (data (terminalStationName, 0), end_pos) ;
+        trainStations.find (my_data (startStationName, 0), start_pos) ;
+        trainStations.find (my_data (terminalStationName, 0), end_pos) ;
         //sort replace to diy_sort
         sort (start_pos.begin(), start_pos.end()) ;
         sort (end_pos.begin(), end_pos.end()) ;
@@ -439,6 +451,10 @@ public:
                 train_pos.push_back (start_pos[start_id]) ;
                 start_id ++; end_id ++ ;
             }
+        }
+
+        if (train_pos.size() == 0) {
+            printf("0\n"); return ;
         }
 
         int ticket_cnt = 0 ;
@@ -472,7 +488,7 @@ public:
 
     void query_transfer () {
         if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
-        char *startStationName, *terminalStationName, *date ;
+        const char *startStationName, *terminalStationName, *date ;
         bool priority = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 's') startStationName = par_val[i] ;
@@ -487,14 +503,15 @@ public:
         int cost = 1e9 ;
         ticket order_1, order_2 ;
         for (int i = 0; i < stationCnt; i ++) {
-            char stationName[35] ;
+            char stationName[1010] ;
+            memset (stationName, 0, sizeof stationName) ;
             stationio.seekg (sizeof (int) + i * sizeof (stationName), ios::beg) ;
             stationio.read (reinterpret_cast<char *>(&stationName), sizeof stationName) ;
 
             if (strcmp (stationName, startStationName) == 0 || strcmp (stationName, terminalStationName) == 0) continue ;
 
             vector<int> pos ;
-            trainStations.find (data (stationName, 0), pos) ;
+            trainStations.find (my_data (stationName, 0), pos) ;
             
             vector<int> train_1, train_2 ;
             for (int j = 0; j < pos.size(); j ++) {
@@ -570,7 +587,7 @@ public:
 
     void buy_ticket () {
         if (par_cnt < 6 || par_cnt > 7) throw "command wrong format" ;
-        char *username, *trainID, *startStationName, *terminalStationName, *date ;
+        const char *username, *trainID, *startStationName, *terminalStationName, *date ;
         int ticketNum = 0 ;
         bool q = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
@@ -588,12 +605,12 @@ public:
         }
 
         vector<int> pos ;
-        curUsers.find (data (username, 0), pos) ;
+        curUsers.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "user not logged in" ;
         user cur_user = user_read (pos[0]) ;
 
         pos.clear() ;
-        trains.find (data (trainID, 0), pos) ;
+        trains.find (my_data (trainID, 0), pos) ;
         if (pos.empty()) throw "train not found" ;
         int train_file_pos = pos[0] ;
         train cur_train = train_read (pos[0]) ;
@@ -617,13 +634,13 @@ public:
         if (remainingSeatNum < ticketNum) {
             cur_order.setStatus (pending) ;
             int write_pos = order_write (cur_order) ;
-            orders.insert (data (username, write_pos)) ;
-            pendingOrders.insert (data (trainID, write_pos)) ;
+            orders.insert (my_data (username, write_pos)) ;
+            pendingOrders.insert (my_data (trainID, write_pos)) ;
             printf("queue\n") ;
             //printf("pending orders insert %s %d\n", trainID, write_pos) ;
         } else {
             int write_pos = order_write (cur_order) ;
-            orders.insert (data (username, write_pos)) ;
+            orders.insert (my_data (username, write_pos)) ;
             cur_train.sellSeats (trainStartTime, startStationName, terminalStationName, ticketNum) ;
             printf("%lld\n", order_price) ;
             train_write (train_file_pos, cur_train) ;
@@ -635,13 +652,13 @@ public:
 
     void query_order () {
         if (par_cnt != 1 || par_key[1][1] != 'u') throw "command wrong format" ;
-        char *username = par_val[1] ;
+        const char *username = par_val[1] ;
         vector<int> pos ;
-        curUsers.find (data (username, 0), pos) ;
+        curUsers.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "user not logged in" ;
 
         pos.clear() ;
-        orders.find (data (username, 0), pos) ;
+        orders.find (my_data (username, 0), pos) ;
         //if (pos.empty()) throw "orders not found" ;
 
         reverse (pos.begin(), pos.end()) ;
@@ -656,7 +673,7 @@ public:
 
     void refund_ticket () {
         if (par_cnt < 1 || par_cnt > 2) throw "command wrong format" ;
-        char *username ;
+        const char *username ;
         int order_num = 1 ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'u') username = par_val[i] ;
@@ -668,11 +685,11 @@ public:
         }
 
         vector<int> pos ;
-        curUsers.find (data (username, 0), pos) ;
+        curUsers.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "user not logged in" ;
 
         pos.clear() ;
-        orders.find (data (username, 0), pos) ;
+        orders.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "no orders" ;
         if (pos.size() < order_num) throw "there is no nth order" ;
         reverse (pos.begin(), pos.end()) ;
@@ -682,13 +699,13 @@ public:
         
         bool is_cur_order_success = cur_order.getStatus() == success ;
         if (cur_order.getStatus() == pending)
-            pendingOrders.erase (data (cur_order.getTrainID(), pos[order_num - 1])) ;
+            pendingOrders.erase (my_data (cur_order.getTrainID(), pos[order_num - 1])) ;
         cur_order.setStatus (refunded) ;
         order_write (pos[order_num - 1], cur_order) ;
 
         pos.clear() ;
         const char *trainID = cur_order.getTrainID() ;
-        trains.find (data (trainID, 0), pos) ;
+        trains.find (my_data (trainID, 0), pos) ;
         int train_file_pos = pos[0] ;
         train cur_train = train_read (train_file_pos) ;
         if (is_cur_order_success) {
@@ -698,7 +715,7 @@ public:
         }
 
         pos.clear() ;
-        pendingOrders.find (data (trainID, 0), pos) ;
+        pendingOrders.find (my_data (trainID, 0), pos) ;
         for (int i = 0; i < pos.size(); i ++) {
             ticket waiting_order = order_read (pos[i]) ;
             Time trainStartTime = cur_train.getStartTime (waiting_order.getLeavingTime(), waiting_order.getFromStation()) ;
@@ -706,7 +723,7 @@ public:
             if (remaining_seat_num >= waiting_order.getSeatNum()) {
                 waiting_order.setStatus (success) ;
                 cur_train.sellSeats (trainStartTime, waiting_order.getFromStation(), waiting_order.getToStation(), waiting_order.getSeatNum()) ;
-                pendingOrders.erase (data (trainID, pos[i])) ;
+                pendingOrders.erase (my_data (trainID, pos[i])) ;
                 order_write (pos[i], waiting_order) ;
             }
         }

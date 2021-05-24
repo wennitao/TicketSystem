@@ -1,5 +1,7 @@
 #include <cstdio>
 #include <string>
+#include <vector>
+#include <algorithm>
 #include "main.h"
 #include "CommandHandler.hpp"
 #include "Database/B+Tree.hpp"
