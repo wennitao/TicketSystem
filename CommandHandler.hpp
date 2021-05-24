@@ -63,10 +63,10 @@ public:
             } else if (strcmp (main_op, "exit") == 0) {
                 printf("bye\n") ;
                 return ;
-            } else if (strcmp (main_op, "add_train") == 0) {
+            }/* else if (strcmp (main_op, "add_train") == 0) {
                 add_train () ;
                 printf("0\n") ;
-            }/* else if (strcmp (main_op, "release_train") == 0) {
+            } else if (strcmp (main_op, "release_train") == 0) {
                 release_train() ;
                 printf("0\n") ;
             } else if (strcmp (main_op, "query_train") == 0) {
