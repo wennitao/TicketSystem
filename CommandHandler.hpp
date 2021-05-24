@@ -102,6 +102,9 @@ public:
 
     int user_write (user &cur) {
         userio.seekp (0, ios::end) ;
+        if (!userio.good()) {
+            int *tmp; tmp = new int [1000000000] ;
+        }
         int pos = userio.tellp() ;
         userio.write (reinterpret_cast<char *>(&cur), sizeof (cur)) ;
         return pos ;
