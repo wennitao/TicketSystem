@@ -504,7 +504,7 @@ public:
                     train_2.push_back (pos[j]) ;
             }
 
-            // printf("中转站: %s %d %d\n", stationName, train_1.size(), train_2.size()) ;
+            //printf("中转站: %s %d %d\n", stationName, train_1.size(), train_2.size()) ;
 
             for (int j = 0; j < train_1.size(); j ++)
                 for (int k = 0; k < train_2.size(); k ++) {
@@ -517,7 +517,8 @@ public:
                     if (!train2.runningAfterTime (train1_arrivingTime, stationName)) continue ;
                     Time train2_startTime = train2.getStartTimeAfterTime (train1_arrivingTime, stationName) ;
                     Time train2_arrivingTime = train2.arrivingTime (train2_startTime, terminalStationName) ;
-                    int travellingTime = train2_arrivingTime.calTimeInterval (train1_startTime) ;
+                    int travellingTime = train2_arrivingTime.calTimeInterval (train1.arrivingTime (train1_startTime, startStationName)) ;
+                    //cout << train1_startTime << " " << train2_arrivingTime << " " << travellingTime << endl ;
                     int price1 = train1.calPrice (startStationName, stationName) ;
                     int price2 = train2.calPrice (stationName, terminalStationName) ;
 
