@@ -19,7 +19,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[110], par_key[110][1010], par_val[110][1010] ;
+    char main_op[110], par_key[15][10010], par_val[15][10010] ;
     int par_cnt = 1 ;
 
 public:
@@ -63,7 +63,7 @@ public:
             } else if (strcmp (main_op, "exit") == 0) {
                 printf("bye\n") ;
                 return ;
-            }/* else if (strcmp (main_op, "add_train") == 0) {
+            } else if (strcmp (main_op, "add_train") == 0) {
                 add_train () ;
                 printf("0\n") ;
             } else if (strcmp (main_op, "release_train") == 0) {
@@ -87,7 +87,7 @@ public:
                 printf("0\n") ;
             } else if (strcmp (main_op, "clean") == 0) {
                 clean () ;
-            }*/
+            }
         } catch (...) {
             printf("-1\n") ;
         }
