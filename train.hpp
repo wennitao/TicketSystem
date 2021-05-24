@@ -191,9 +191,11 @@ public:
         int travellingTime = 0 ;
         bool flag = 0 ;
         for (int i = 1; i <= stationNum; i ++) {
+            bool is_fromStation = 0 ;
             if (strcmp (stations[i], toStation) == 0) break ;
-            if (strcmp (stations[i], fromStation) == 0) flag = 1 ;
+            if (strcmp (stations[i], fromStation) == 0) flag = 1, is_fromStation = 1 ;
             if (flag) travellingTime += travelTimes[i] ;
+            if (flag && !is_fromStation) travellingTime += stopoverTimes[i] ;
         }
         return travellingTime ;
     }

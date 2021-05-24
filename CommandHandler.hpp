@@ -402,10 +402,12 @@ public:
     }
 
     static bool cmp_time (const ticket &a, const ticket &b) {
+        if (a.getTravellingTime() == b.getTravellingTime()) return strcmp (a.getTrainID(), b.getTrainID()) < 0 ;
         return a.getTravellingTime() < b.getTravellingTime() ;
     }
 
     static bool cmp_cost (const ticket &a, const ticket &b) {
+        if (a.getPrice() == b.getPrice()) return strcmp (a.getTrainID(), b.getTrainID()) < 0 ;
         return a.getPrice() < b.getPrice() ;
     }
 
@@ -452,6 +454,8 @@ public:
             cur_train.calSeatNum (trainStartTime, startStationName, terminalStationName), 
             cur_train.getTravellingTime (startStationName, terminalStationName), 
             success) ;
+
+            //cout << tickets[ticket_cnt - 1] << " travelling time: " << tickets[ticket_cnt - 1].getTravellingTime() << endl ; 
         }
 
         if (priority) sort (tickets, tickets + ticket_cnt, cmp_cost) ;
@@ -517,7 +521,7 @@ public:
                     int price1 = train1.calPrice (startStationName, stationName) ;
                     int price2 = train2.calPrice (stationName, terminalStationName) ;
 
-                    if (priority == 0 && travellingTime < cost) {
+                    if (priority == 0 && (travellingTime < cost || (travellingTime == cost && train1.getTravellingTime (startStationName, stationName) < order_1.getTravellingTime()))) {
                         cost = travellingTime ;
                         order_1 = ticket (train1.getTrainID(), startStationName, stationName, 
                         train1.leavingTime (train1_startTime, startStationName), 
@@ -535,7 +539,7 @@ public:
                         success) ;
                     }
                     
-                    if (priority == 1 && price1 + price2 < cost) {
+                    if (priority == 1 && (price1 + price2 < cost || (price1 + price2 == cost && train1.getTravellingTime (startStationName, stationName) < order_1.getTravellingTime()))) {
                         cost = price1 + price2 ;
                         order_1 = ticket (train1.getTrainID(), startStationName, stationName, 
                         train1.leavingTime (train1_startTime, startStationName), 
