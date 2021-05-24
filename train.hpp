@@ -13,13 +13,13 @@ using namespace std;
 class train {
 private:
     Time saleDate[3], startTime ;
-    char trainID[110], stations[110][110], type ;
+    char trainID[110], stations[110][1010], type ;
     int stationNum, seatNum, prices[110], travelTimes[110], stopoverTimes[110], seat[110][110] ;
     bool released = 0 ;
 
 public:
     train () {}
-    train (const char *_trainID, const char _stations[110][110], const Time _startTime, const Time _saleDate[3], 
+    train (const char *_trainID, const char _stations[110][1010], const Time _startTime, const Time _saleDate[3], 
     const char _type, int _stationNum, int _seatNum, int *_prices, int *_travelTimes, int *_stopoverTimes) {
         stationNum = _stationNum; seatNum = _seatNum; type = _type ;
         strcpy (trainID, _trainID) ;
