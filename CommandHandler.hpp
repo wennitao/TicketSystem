@@ -157,7 +157,7 @@ public:
         stationio.seekp (0, ios::beg) ;
         stationio.write (reinterpret_cast<char *>(&cnt), sizeof cnt) ;
 
-        char stationName[1010] ;
+        char stationName[110] ;
         strcpy (stationName, _stationName) ;
         stationio.seekp (0, ios::end) ;
         stationio.write (reinterpret_cast<char *>(&stationName), sizeof (stationName)) ;
