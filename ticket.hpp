@@ -17,7 +17,7 @@ class ticket {
     friend ostream& operator << (ostream &out, const ticket &_ticket) ;
 
 private:
-    char trainID[25], from[35], to[35] ;
+    char trainID[110], from[110], to[110] ;
     Time leaving_time, arriving_time ;
     int price, seat_num, travellingTime ;
     Status status ;
