@@ -13,7 +13,7 @@ using namespace std;
 class train {
 private:
     Time saleDate[3], startTime ;
-    char trainID[110], stations[110][1010], type ;
+    char trainID[110], stations[110][110], type ;
     int stationNum, seatNum, prices[110], travelTimes[110], stopoverTimes[110], seat[110][110] ;
     bool released = 0 ;
 

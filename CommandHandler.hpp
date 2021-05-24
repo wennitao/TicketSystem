@@ -157,7 +157,7 @@ public:
         stationio.seekp (0, ios::beg) ;
         stationio.write (reinterpret_cast<char *>(&cnt), sizeof cnt) ;
 
-        char stationName[1010] ;
+        char stationName[110] ;
         strcpy (stationName, _stationName) ;
         stationio.seekp (0, ios::end) ;
         stationio.write (reinterpret_cast<char *>(&stationName), sizeof (stationName)) ;
@@ -738,26 +738,6 @@ public:
         orders.clear() ;
         pendingOrders.clear() ;
         stationNames.clear() ;
-
-        // userio.close() ;
-        // userio.open ("users.dat", ios::out | ios::binary) ;
-        // userio.close() ;
-        // userio.open ("users.dat", ios::in | ios::out | ios::binary) ;
-
-        // trainio.close() ;
-        // trainio.open ("trains.dat", ios::out | ios::binary) ;
-        // trainio.close() ;
-        // trainio.open ("trains.dat", ios::in | ios::out | ios::binary) ;
-
-        // orderio.close() ;
-        // orderio.open ("orders.dat", ios::out | ios::binary) ;
-        // orderio.close() ;
-        // orderio.open ("orders.dat", ios::in | ios::out | ios::binary) ;
-
-        // stationio.close() ;
-        // stationio.open ("stationNames.dat", ios::out | ios::binary) ;
-        // stationio.close() ;
-        // stationio.open ("stationNames.dat", ios::in | ios::out | ios::binary) ;
     }
 
 } ;
