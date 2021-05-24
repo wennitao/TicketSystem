@@ -19,7 +19,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[20] = {0}, par_key[15][5], par_val[15][4010] ;
+    char main_op[110] = {0}, par_key[110][110], par_val[110][40010] ;
     int par_cnt = 1 ;
 
 public:
