@@ -64,7 +64,7 @@ public:
                 printf("bye\n") ;
                 return ;
             } else if (strcmp (main_op, "add_train") == 0) {
-                //add_train () ;
+                add_train () ;
                 printf("0\n") ;
             } else if (strcmp (main_op, "release_train") == 0) {
                 release_train() ;
