@@ -492,6 +492,8 @@ public:
 
             vector<int> pos ;
             trainStations.find (my_data (stationName, 0), pos) ;
+
+            //cout << pos.size() << endl ;
             
             vector<int> train_1, train_2 ;
             for (int j = 0; j < pos.size(); j ++) {
@@ -499,6 +501,7 @@ public:
                 if (!cur_train.getReleaseStatus()) continue ;
                 if (cur_train.runningFromTo (startStationName, stationName) && cur_train.runningOnDate (date, startStationName))
                     train_1.push_back (pos[j]) ;
+                //cur_train.print (date) ;
                 if (cur_train.runningFromTo (stationName, terminalStationName))
                     train_2.push_back (pos[j]) ;
             }
