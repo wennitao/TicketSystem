@@ -8,8 +8,6 @@
 
 #include "time.hpp"
 
-using namespace std;
-
 class train {
 private:
     Time saleDate[3], startTime ;
