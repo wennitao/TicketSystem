@@ -19,7 +19,8 @@ class ticket {
 private:
     char trainID[110], from[110], to[110] ;
     Time leaving_time, arriving_time ;
-    int price, seat_num, travellingTime ;
+    long long price ;
+    int seat_num, travellingTime ;
     Status status ;
 
 public:
@@ -28,7 +29,7 @@ public:
         memset (from, 0, sizeof from) ;
         memset (to, 0, sizeof to) ;
     }
-    ticket (const char *_trainID, const char *_from, const char *_to, const Time &_leaving_time, const Time &_arriving_time, const int _price, const int _seat_num, const int _travellingTime, const Status _status) {
+    ticket (const char *_trainID, const char *_from, const char *_to, const Time &_leaving_time, const Time &_arriving_time, const long long _price, const int _seat_num, const int _travellingTime, const Status _status) {
         memset (trainID, 0, sizeof trainID) ;
         memset (from, 0, sizeof from) ;
         memset (to, 0, sizeof to) ;

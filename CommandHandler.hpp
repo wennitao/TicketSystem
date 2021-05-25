@@ -165,8 +165,14 @@ public:
         //printf("after add_station file io ok: %d\n", stationio.good()) ;
     }
 
+    int strToInt (const char *str) {
+        int len = strlen (str), res = 0 ;
+        for (int i = 0; i < len; i ++)
+            res = res * 10 + str[i] - '0' ;
+        return res ;
+    }
+
     void add_user () {
-        if (par_cnt != 6) throw "command wrong format" ;
         const char *cur_username, *username, *password, *name, *mailAddr ;
         int p = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
@@ -175,12 +181,7 @@ public:
             else if (par_key[i][1] == 'p') password = par_val[i] ;
             else if (par_key[i][1] == 'n') name = par_val[i] ;
             else if (par_key[i][1] == 'm') mailAddr = par_val[i] ;
-            else if (par_key[i][1] == 'g') {
-                int len = strlen (par_val[i]) ;
-                for (int j = 0; j < len; j ++) p = p * 10 + par_val[i][j] - '0' ;
-            } else {
-                throw "command wrong format" ;
-            }
+            else if (par_key[i][1] == 'g') p = strToInt (par_val[i]) ;
         }
         if (users.empty()) {
             p = 10 ;
@@ -203,12 +204,10 @@ public:
     }
 
     void login () {
-        if (par_cnt != 2) throw "command wrong format" ;
         const char *username, *password ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'u') username = par_val[i] ;
             else if (par_key[i][1] == 'p') password = par_val[i] ;
-            else throw "command wrong format" ;
         }
         login (username, password) ;
     }
@@ -226,13 +225,11 @@ public:
     }
 
     void logout () {
-        if (par_cnt != 1) throw "command wrong format" ;
-        if (par_key[1][1] != 'u') throw "command wrong format" ;
         char *username = par_val[1] ;
         logout (username) ;
     }
 
-    void logout (char *username) {
+    void logout (const char *username) {
         vector<int> pos ;
         curUsers.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "not logged in" ;
@@ -240,12 +237,10 @@ public:
     }
 
     void query_profile () {
-        if (par_cnt != 2) throw "command wrong format" ;
         const char *cur_username, *username ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'c') cur_username = par_val[i] ;
             else if (par_key[i][1] == 'u') username = par_val[i] ;
-            else throw "command wrong format" ;
         }
         vector<int> pos ;
         curUsers.find (my_data (cur_username, 0), pos) ;
@@ -260,24 +255,15 @@ public:
     }
 
     void modify_profile () {
-        if (par_cnt < 2 || par_cnt > 6) throw "command wrong format" ; 
-        bool c = 0, u = 0 ;
         const char *cur_username = nullptr, *username = nullptr, *password = nullptr, *name = nullptr, *mailAddr = nullptr; int p = -1 ;
         for (int i = 1; i <= par_cnt; i ++) {
-            if (par_key[i][1] == 'c') c = 1, cur_username = par_val[i] ;
-            else if (par_key[i][1] == 'u') u = 1, username = par_val[i] ;
+            if (par_key[i][1] == 'c') cur_username = par_val[i] ;
+            else if (par_key[i][1] == 'u') username = par_val[i] ;
             else if (par_key[i][1] == 'p') password = par_val[i] ;
             else if (par_key[i][1] == 'n') name = par_val[i] ;
             else if (par_key[i][1] == 'm') mailAddr = par_val[i] ;
-            else if (par_key[i][1] == 'g') {
-                p = 0 ;
-                int len = strlen (par_val[i]) ;
-                for (int j = 0; j < len; j ++) p = p * 10 + par_val[i][j] - '0' ;
-            } else {
-                throw "command wrong format" ;
-            }
+            else if (par_key[i][1] == 'g') p = strToInt (par_val[i]) ;
         }
-        if (!c || !u) throw "command wrong format" ;
 
         vector<int> pos ;
         curUsers.find (my_data (cur_username, 0), pos) ;
@@ -298,7 +284,6 @@ public:
     }
 
     void add_train () {
-        if (par_cnt != 10) throw "command wrong format" ;
         Time saleDate[3], startTime ;
         char stationName[110][110], type ;
         const char *trainID ;
@@ -309,13 +294,9 @@ public:
         memset (stopoverTimes, 0, sizeof stopoverTimes) ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
-            else if (par_key[i][1] == 'n') {
-                int len = strlen (par_val[i]) ;
-                for (int j = 0; j < len; j ++) stationNum = stationNum * 10 + par_val[i][j] - '0' ;
-            } else if (par_key[i][1] == 'm') {
-                int len = strlen (par_val[i]) ;
-                for (int j = 0; j < len; j ++) seatNum = seatNum * 10 + par_val[i][j] - '0' ;
-            } else if (par_key[i][1] == 's') {
+            else if (par_key[i][1] == 'n') stationNum = strToInt (par_val[i]) ;
+            else if (par_key[i][1] == 'm') seatNum = strToInt (par_val[i]) ;
+            else if (par_key[i][1] == 's') {
                 int curid = 1, curlen = 0, cur = 0, len = strlen (par_val[i]) ;
                 for (; cur < len; cur ++) {
                     if (par_val[i][cur] == '|') curid ++, curlen = 0 ;
@@ -374,7 +355,6 @@ public:
     }
 
     void release_train () {
-        if (par_cnt != 1 || par_key[1][1] != 'i') throw "command wrong format" ;
         const char *trainID = par_val[1] ;
         vector<int> pos ;
         trains.find (my_data (trainID, 0), pos) ;
@@ -400,7 +380,6 @@ public:
     }
 
     void delete_train () {
-        if (par_cnt != 1 || par_key[1][1] != 'i') throw "command wrong format" ;
         const char *trainID = par_val[1] ;
         vector<int> pos ;
         trains.find (my_data (trainID, 0), pos) ;
@@ -426,7 +405,6 @@ public:
     }
 
     void query_ticket () {
-        if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
         const char *startStationName, *terminalStationName, *date ;
         bool priority = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
@@ -487,7 +465,6 @@ public:
     }
 
     void query_transfer () {
-        if (par_cnt < 3 || par_cnt > 4) throw "command wrong format" ;
         const char *startStationName, *terminalStationName, *date ;
         bool priority = 0 ;
         for (int i = 1; i <= par_cnt; i ++) {
@@ -586,7 +563,6 @@ public:
     }
 
     void buy_ticket () {
-        if (par_cnt < 6 || par_cnt > 7) throw "command wrong format" ;
         const char *username, *trainID, *startStationName, *terminalStationName, *date ;
         int ticketNum = 0 ;
         bool q = 0 ;
@@ -596,12 +572,8 @@ public:
             else if (par_key[i][1] == 'd') date = par_val[i] ;
             else if (par_key[i][1] == 'f') startStationName = par_val[i] ;
             else if (par_key[i][1] == 't') terminalStationName = par_val[i] ;
-            else if (par_key[i][1] == 'n') {
-                int len = strlen (par_val[i]) ;
-                for (int j = 0; j < len; j ++) ticketNum = ticketNum * 10 + par_val[i][j] - '0' ;
-            }
+            else if (par_key[i][1] == 'n') ticketNum = strToInt (par_val[i]) ;
             else if (par_key[i][1] == 'q') q = strcmp (par_val[i], "true") == 0 ? 1 : 0 ;
-            else throw "command wrong format" ;
         }
 
         vector<int> pos ;
