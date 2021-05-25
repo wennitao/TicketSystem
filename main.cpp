@@ -65,6 +65,9 @@ int main() {
     init() ;
     string op ;
     while (getline (cin, op)) {
+        if (op == string ("exit")) {
+            printf("bye\n"); break ;
+        }
         CommandHandler ch (op) ;
         ch.run () ;
     }

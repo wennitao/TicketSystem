@@ -87,6 +87,7 @@ public:
                 printf("0\n") ;
             } else if (strcmp (main_op, "clean") == 0) {
                 clean () ;
+                printf("0\n") ;
             }
         } catch (...) {
             printf("-1\n") ;
