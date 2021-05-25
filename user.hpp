@@ -24,11 +24,6 @@ public:
     }
 
     user (const char *_username, const char *_password, const char *_name, const char *_mailAddr, int p) {\
-        memset (username, 0, sizeof username) ;
-        memset (password, 0, sizeof password) ;
-        memset (name, 0, sizeof name) ;
-        memset (mailAddr, 0, sizeof mailAddr) ;
-    
         strcpy (username, _username) ;
         strcpy (password, _password) ;
         strcpy (name, _name) ;

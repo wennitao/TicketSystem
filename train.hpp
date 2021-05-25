@@ -34,7 +34,7 @@ public:
         saleDate[1] = _saleDate[1]; saleDate[2] = _saleDate[2] ;
         for (int i = 1; i < stationNum; i ++) prices[i] = _prices[i] ;
         for (int i = 1; i < stationNum; i ++) travelTimes[i] = _travelTimes[i] ;
-        stopoverTimes[1] = 0 ;
+        stopoverTimes[1] = stopoverTimes[stationNum] = 0 ;
         for (int i = 2; i <= stationNum - 1; i ++) stopoverTimes[i] = _stopoverTimes[i - 1] ;
         released = 0 ;
         int days = _saleDate[2] - _saleDate[1] ;
