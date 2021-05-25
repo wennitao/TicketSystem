@@ -588,6 +588,7 @@ public:
         int train_file_pos = pos[0] ;
         train cur_train = train_read (pos[0]) ;
         if (!cur_train.runningOnDate (date, startStationName)) throw "no trains run on this date" ;
+        if (cur_train.getSeatNum() < ticketNum) throw "no enough seats" ;
 
         Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
 

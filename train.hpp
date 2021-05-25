@@ -58,6 +58,10 @@ public:
         return stationNum ;
     }
 
+    int getSeatNum() const {
+        return seatNum ;
+    }
+
     const char* getStationName (int id) const {
         return stations[id] ;
     }
