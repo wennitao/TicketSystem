@@ -37,7 +37,8 @@ public:
         res.m += min ;
         res.h += res.m / 60; res.m %= 60 ;
         res.day += res.h / 24; res.h %= 24 ;
-        if (res.day > days[res.month]) res.day -= days[res.month], res.month ++ ;
+        while (res.day > days[res.month]) res.day -= days[res.month], res.month ++ ;
+        //if (res.day > days[res.month]) res.day -= days[res.month], res.month ++ ;
         return res ;
     }
     Time operator - (const int min) {
@@ -47,7 +48,8 @@ public:
         if (res.m < 0) res.m += 60, res.h -- ;
         res.day += res.h / 24; res.h %= 24 ;
         if (res.h < 0) res.h += 24, res.day -- ;
-        if (res.day <= 0) res.month --, res.day += days[res.month] ;
+        while (res.day <= 0) res.month --, res.day += days[res.month] ;
+        //if (res.day <= 0) res.month --, res.day += days[res.month] ;
         return res ;
     }
     int operator - (const Time &_time) const {
