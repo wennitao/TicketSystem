@@ -19,7 +19,7 @@ using namespace std;
 class CommandHandler {
 private:
     stringstream command ;
-    char main_op[110], par_key[15][35], par_val[15][4010] ;
+    char main_op[110], par_key[15][35], par_val[15][10010] ;
     int par_cnt = 1 ;
 
 public:
@@ -300,7 +300,7 @@ public:
     void add_train () {
         if (par_cnt != 10) throw "command wrong format" ;
         Time saleDate[3], startTime ;
-        char stationName[110][1010], type ;
+        char stationName[110][110], type ;
         const char *trainID ;
         int stationNum = 0, seatNum = 0, prices[110], travelTimes[110], stopoverTimes[110] ;
         memset (stationName, 0, sizeof stationName) ;
@@ -342,7 +342,7 @@ public:
                     else stopoverTimes[curid] = stopoverTimes[curid] * 10 + par_val[i][cur] - '0' ;
                 }
             } else if (par_key[i][1] == 'd') {
-                char tmp[1010] = {0} ;
+                char tmp[110] = {0} ;
                 for (int j = 0; j < 5; j ++) tmp[j] = par_val[i][j] ;
                 saleDate[1] = Time (tmp, "00:00") ;
                 for (int j = 6; j < 11; j ++) tmp[j - 6] = par_val[i][j] ;
@@ -503,7 +503,7 @@ public:
         int cost = 1e9 ;
         ticket order_1, order_2 ;
         for (int i = 0; i < stationCnt; i ++) {
-            char stationName[1010] ;
+            char stationName[110] ;
             memset (stationName, 0, sizeof stationName) ;
             stationio.seekg (sizeof (int) + i * sizeof (stationName), ios::beg) ;
             stationio.read (reinterpret_cast<char *>(&stationName), sizeof stationName) ;
@@ -536,7 +536,7 @@ public:
                     if (!train2.runningAfterTime (train1_arrivingTime, stationName)) continue ;
                     Time train2_startTime = train2.getStartTimeAfterTime (train1_arrivingTime, stationName) ;
                     Time train2_arrivingTime = train2.arrivingTime (train2_startTime, terminalStationName) ;
-                    int travellingTime = train2_arrivingTime.calTimeInterval (train1.arrivingTime (train1_startTime, startStationName)) ;
+                    int travellingTime = train2_arrivingTime.calTimeInterval (train1.leavingTime (train1_startTime, startStationName)) ;
                     //cout << train1_startTime << " " << train2_arrivingTime << " " << travellingTime << endl ;
                     int price1 = train1.calPrice (startStationName, stationName) ;
                     int price2 = train2.calPrice (stationName, terminalStationName) ;
