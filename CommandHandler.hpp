@@ -335,6 +335,8 @@ public:
         }
         saleDate[1].setTime (startTime); saleDate[2].setTime(startTime) ;
 
+        if (seatNum == 0) throw "invalid" ;
+
         train cur_train = train (trainID, stationName, startTime, saleDate, type, stationNum, seatNum, prices, travelTimes, stopoverTimes) ;
         vector<int> pos ;
         trains.find (my_data (trainID, 0), pos) ;
@@ -576,6 +578,8 @@ public:
             else if (par_key[i][1] == 'n') ticketNum = strToInt (par_val[i]) ;
             else if (par_key[i][1] == 'q') q = strcmp (par_val[i], "true") == 0 ? 1 : 0 ;
         }
+
+        if (ticketNum == 0) throw "cannot buy 0 tickets" ;
 
         vector<int> pos ;
         curUsers.find (my_data (username, 0), pos) ;
