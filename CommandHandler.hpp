@@ -324,7 +324,8 @@ public:
                     else stopoverTimes[curid] = stopoverTimes[curid] * 10 + par_val[i][cur] - '0' ;
                 }
             } else if (par_key[i][1] == 'd') {
-                char tmp[110] = {0} ;
+                char tmp[110] ;
+                memset (tmp, 0, sizeof tmp) ;
                 for (int j = 0; j < 5; j ++) tmp[j] = par_val[i][j] ;
                 saleDate[1] = Time (tmp, "00:00") ;
                 for (int j = 6; j < 11; j ++) tmp[j - 6] = par_val[i][j] ;
@@ -632,7 +633,6 @@ public:
     }
 
     void query_order () {
-        if (par_cnt != 1 || par_key[1][1] != 'u') throw "command wrong format" ;
         const char *username = par_val[1] ;
         vector<int> pos ;
         curUsers.find (my_data (username, 0), pos) ;
@@ -653,7 +653,6 @@ public:
     }
 
     void refund_ticket () {
-        if (par_cnt < 1 || par_cnt > 2) throw "command wrong format" ;
         const char *username ;
         int order_num = 1 ;
         for (int i = 1; i <= par_cnt; i ++) {
