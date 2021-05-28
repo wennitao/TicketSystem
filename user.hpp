@@ -23,7 +23,7 @@ public:
         memset (mailAddr, 0, sizeof mailAddr) ;
     }
 
-    user (const char *_username, const char *_password, const char *_name, const char *_mailAddr, int p) {\
+    user (const char *_username, const char *_password, const char *_name, const char *_mailAddr, int p) {
         strcpy (username, _username) ;
         strcpy (password, _password) ;
         strcpy (name, _name) ;

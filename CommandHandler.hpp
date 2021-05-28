@@ -324,7 +324,8 @@ public:
                     else stopoverTimes[curid] = stopoverTimes[curid] * 10 + par_val[i][cur] - '0' ;
                 }
             } else if (par_key[i][1] == 'd') {
-                char tmp[110] = {0} ;
+                char tmp[110] ;
+                memset (tmp, 0, sizeof tmp) ;
                 for (int j = 0; j < 5; j ++) tmp[j] = par_val[i][j] ;
                 saleDate[1] = Time (tmp, "00:00") ;
                 for (int j = 6; j < 11; j ++) tmp[j - 6] = par_val[i][j] ;
@@ -334,6 +335,8 @@ public:
             }
         }
         saleDate[1].setTime (startTime); saleDate[2].setTime(startTime) ;
+
+        if (seatNum == 0) throw "invalid" ;
 
         train cur_train = train (trainID, stationName, startTime, saleDate, type, stationNum, seatNum, prices, travelTimes, stopoverTimes) ;
         vector<int> pos ;
@@ -490,6 +493,8 @@ public:
 
             vector<int> pos ;
             trainStations.find (my_data (stationName, 0), pos) ;
+
+            //cout << pos.size() << endl ;
             
             vector<int> train_1, train_2 ;
             for (int j = 0; j < pos.size(); j ++) {
@@ -497,6 +502,7 @@ public:
                 if (!cur_train.getReleaseStatus()) continue ;
                 if (cur_train.runningFromTo (startStationName, stationName) && cur_train.runningOnDate (date, startStationName))
                     train_1.push_back (pos[j]) ;
+                //cur_train.print (date) ;
                 if (cur_train.runningFromTo (stationName, terminalStationName))
                     train_2.push_back (pos[j]) ;
             }
@@ -577,6 +583,8 @@ public:
             else if (par_key[i][1] == 'q') q = strcmp (par_val[i], "true") == 0 ? 1 : 0 ;
         }
 
+        if (ticketNum == 0) throw "cannot buy 0 tickets" ;
+
         vector<int> pos ;
         curUsers.find (my_data (username, 0), pos) ;
         if (pos.empty()) throw "user not logged in" ;
@@ -588,6 +596,7 @@ public:
         int train_file_pos = pos[0] ;
         train cur_train = train_read (pos[0]) ;
         if (!cur_train.runningOnDate (date, startStationName)) throw "no trains run on this date" ;
+        if (cur_train.getSeatNum() < ticketNum) throw "no enough seats" ;
 
         Time trainStartTime = cur_train.getStartTime (date, startStationName) ;
 
@@ -624,7 +633,6 @@ public:
     }
 
     void query_order () {
-        if (par_cnt != 1 || par_key[1][1] != 'u') throw "command wrong format" ;
         const char *username = par_val[1] ;
         vector<int> pos ;
         curUsers.find (my_data (username, 0), pos) ;
@@ -645,7 +653,6 @@ public:
     }
 
     void refund_ticket () {
-        if (par_cnt < 1 || par_cnt > 2) throw "command wrong format" ;
         const char *username ;
         int order_num = 1 ;
         for (int i = 1; i <= par_cnt; i ++) {

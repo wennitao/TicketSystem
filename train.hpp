@@ -8,8 +8,6 @@
 
 #include "time.hpp"
 
-using namespace std;
-
 class train {
 private:
     Time saleDate[3], startTime ;
@@ -58,6 +56,10 @@ public:
 
     int getStationNum () const {
         return stationNum ;
+    }
+
+    int getSeatNum() const {
+        return seatNum ;
     }
 
     const char* getStationName (int id) const {
