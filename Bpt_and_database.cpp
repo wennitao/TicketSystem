@@ -71,6 +71,11 @@ void Database::insert(const data &x) {
                 clear(cur.key[i]);
             }
             cur.keycnt = maxkey / 2;
+            if (cur.rbro != -1){
+                node rr = disk_read(cur.rbro);
+                rr.lbro = nxt_pos;
+                disk_write(cur.rbro , rr);
+            }
             nxt.lbro = tmp_pos;
             nxt.rbro = cur.rbro;
             cur.rbro = nxt_pos;
@@ -228,6 +233,13 @@ void Database::clear(data &tmp) {
     memset(tmp.str , 0 , sizeof(tmp.str));
     tmp.pos = -1;
 };
+data Database::findmin(int nod) {
+    node cur = disk_read(nod);
+    while (cur.son[0] != -1){
+        cur = disk_read(cur.son[0]);
+    }
+    return cur.key[0];
+}
 void Database::checkpapa(int pa) {
     //
     if (pa == -1)return;
@@ -256,32 +268,35 @@ void Database::checkpapa(int pa) {
         runcle = gpar_node.son[pa_pos + 1];
         run_node = disk_read(runcle);
     }//先尝试去借
-    if (luncle != -1 && lun_node.keycnt > maxkey/2){
+    if (pa_pos != 0 && luncle != -1 && lun_node.keycnt > maxkey/2){
         for (int i = cur.keycnt; i > 0 ; --i) {
             cur.key[i] = cur.key[i - 1];
         }
-        cur.key[0] = gpar_node.key[pa_pos - 1];
+        cur.key[0] = findmin(pa);
         cur.keycnt++;
         for (int i = cur.keycnt; i > 0 ; --i) {
             cur.son[i] = cur.son[i - 1];
         }
-        cur.son[0] = run_node.son[run_node.keycnt];
+        cur.son[0] = lun_node.son[lun_node.keycnt];
         node son_change = disk_read(cur.son[0]);
         son_change.fa = pa;
         disk_write(cur.son[0] , son_change);
-        gpar_node.key[pa_pos - 1] = run_node.key[run_node.keycnt - 1];
-        clear(run_node.key[run_node.keycnt - 1]);
-        run_node.keycnt--;
         disk_write(pa , cur);
+        //gpar_node.key[pa_pos - 1] = lun_node.key[lun_node.keycnt - 1];//?????
+        gpar_node.key[pa_pos - 1] = findmin(pa);
+        clear(lun_node.key[lun_node.keycnt - 1]);
+        lun_node.keycnt--;
+
         disk_write(gpar , gpar_node);
         disk_write(luncle , lun_node);
-    } else if (runcle != -1 && run_node.keycnt > maxkey/2){
-        cur.key[cur.keycnt++] = gpar_node.key[pa_pos];
+    } else if (pa_pos != gpar_node.keycnt && runcle != -1 && run_node.keycnt > maxkey/2){
+        cur.key[cur.keycnt++] = findmin(runcle);//向右借好像可以直接祖父下移//不行
         cur.son[cur.keycnt] = run_node.son[0];
         node son_change = disk_read(run_node.son[0]);
         son_change.fa = pa;
         disk_write(run_node.son[0] , son_change);
-        gpar_node.key[pa_pos] = run_node.key[0];
+        //gpar_node.key[pa_pos] = run_node.key[0];///????????
+
         for (int i = 0; i < run_node.keycnt - 1; ++i) {
             run_node.key[i] = run_node.key[i + 1];
         }
@@ -291,11 +306,12 @@ void Database::checkpapa(int pa) {
             run_node.son[i] = run_node.son[i + 1];
         }
         run_node.son[run_node.keycnt + 1] = -1;
+        disk_write(runcle , run_node);
+        gpar_node.key[pa_pos] = findmin(runcle);
         disk_write(pa , cur);
         disk_write(gpar , gpar_node);
-        disk_write(runcle , run_node);
     } else if (luncle != -1){//突然想起来erase合并里面的lbro和rbro还没改//改完了
-        lun_node.key[lun_node.keycnt] = gpar_node.key[pa_pos - 1];
+        lun_node.key[lun_node.keycnt] = findmin(pa);
         for (int i = 0; i < cur.keycnt; ++i) {
             lun_node.key[lun_node.keycnt + 1 + i] = cur.key[i];
             lun_node.son[lun_node.keycnt + 1 + i] = cur.son[i];
@@ -330,7 +346,7 @@ void Database::checkpapa(int pa) {
         disk_write(gpar , gpar_node);
         checkpapa(lun_node.fa);
     } else {
-        cur.key[cur.keycnt] = gpar_node.key[pa_pos];
+        cur.key[cur.keycnt] = findmin(runcle);
         for (int i = 0; i < run_node.keycnt; ++i) {
             cur.key[cur.keycnt + 1 + i] = run_node.key[i];
             cur.son[cur.keycnt + 1 + i] = run_node.son[i];
@@ -391,7 +407,7 @@ void Database::erase(const data &x) {
         if (rbro != -1) rbro_node = disk_read(rbro);
         int son_pos = 0;
         for (; par_node.son[son_pos] != pos.first ; ++son_pos) {}
-        if (lbro != -1 && lbro_node.keycnt > maxkey/2){
+        if (son_pos != 0 && lbro != -1 && lbro_node.keycnt > maxkey/2){
             for (int i = cur.keycnt; i > 0 ; --i) {
                 cur.key[i] = cur.key[i - 1];
             }
@@ -403,7 +419,7 @@ void Database::erase(const data &x) {
             disk_write(pos.first , cur);
             disk_write(lbro , lbro_node);
             disk_write(cur.fa , par_node);
-        } else if (rbro != -1 && rbro_node.keycnt > maxkey/2){
+        } else if (son_pos != par_node.keycnt && rbro != -1 && rbro_node.keycnt > maxkey/2){
             cur.key[cur.keycnt ++] = rbro_node.key[0];
             for (int i = 1; i < rbro_node.keycnt; ++i) {
                 rbro_node.key[i - 1] = rbro_node.key[i];
