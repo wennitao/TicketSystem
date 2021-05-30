@@ -13,8 +13,8 @@ struct data{
     char str[datasize];
     int pos;
     data(){
-        str[0] = '\0';
-//        memset(str , 0 ,sizeof str)
+        //str[0] = '\0';
+        memset(str , 0 ,sizeof str);
         pos = -1;
     }
     data(const char * str_ , int pos_){
