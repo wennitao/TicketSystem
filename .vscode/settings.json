@@ -85,5 +85,6 @@
         "typeindex": "cpp",
         "unordered_set": "cpp",
         "valarray": "cpp"
-    }
+    },
+    "python.pythonPath": "/bin/python3"
 }

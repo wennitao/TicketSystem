@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block contents %}
+<body class="text-center">
+    <main class="form-signin">
+        <h2 class="h3 mb-3 fw-normal" style="font-size: 50px;">修改密码</h2>
+
+        {% if error == 1 %}
+            <div class="alert alert-danger" role="alert">
+                原密码输入错误
+            </div>
+        {% elif error == 2 %}
+            <div class="alert alert-danger" role="alert">
+                密码填写不一致
+            </div>
+        {% endif %}
+
+        <form action="/profile/{{current_user.stuid}}", method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <div class="top">
+                <label for="inputPassword" class="visually-hidden">原密码</label>
+                <input type="password" name="oldpassword" id="inputPassword" class="form-control" placeholder="原密码" required maxlength="20" minlength="6">
+            </div>
+
+            <div class="mid">
+                <label for="inputPassword" class="visually-hidden">新密码</label>
+                <input type="password" name="newpassword" id="inputPassword" class="form-control" placeholder="新密码" required maxlength="20" minlength="6">
+            </div>
+
+            <div class="bottom">
+                <label for="confirm" class="visually-hidden">确认密码</label>
+                <input type="password" name="confirm" id="confirm" class="form-control" placeholder="确认密码" required maxlength="20" minlength="6">
+            </div>
+
+            <button class="w-100 btn btn-lg btn-primary" type="submit">确认修改</button>
+        </form>
+        <br><br>
+    </main>
+</body>
+
+{% endblock %}

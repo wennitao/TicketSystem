@@ -63,9 +63,11 @@ void init () {
 
 int main() {
     init() ;
+    bool exit_flag = 0 ;
     string op ;
     while (getline (cin, op)) {
         if (op == string ("exit")) {
+            exit_flag = 1 ;
             printf("bye\n"); break ;
         }
         CommandHandler ch (op) ;
@@ -75,6 +77,6 @@ int main() {
     trainio.close() ;
     orderio.close() ;
     stationio.close() ;
-    curUsers.clear() ;
+    if (exit_flag) curUsers.clear() ;
     return 0 ;
 }

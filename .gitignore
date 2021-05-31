@@ -3,3 +3,16 @@
 *.dat
 *.ans
 backend/data/*
+
+frontend/flaskr/*.pyc
+frontend/flaskr/__pycache__/
+
+frontend/flaskr/instance/
+
+frontend/flaskr/.pytest_cache/
+frontend/flaskr/.coverage
+frontend/flaskr/htmlcov/
+
+frontend/flaskr/dist/
+frontend/flaskr/build/
+frontend/flaskr/*.egg-info/
