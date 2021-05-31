@@ -12,7 +12,7 @@
 #include "data.h"//size 即m为B+树阶数：最多有几个儿子
 
 using namespace std;
-const int size = 10;
+const int size = 5;
 const int maxkey = size - 1;//单个节点最多能存多少key
 class Database {
 private:
@@ -51,11 +51,11 @@ public:
         if (!in.is_open()){
             fstream out (file , ios :: out | ios :: binary);
             out.write(reinterpret_cast<char *>(&root) , sizeof root);
-            out.write(reinterpret_cast<char *>(nodenum), sizeof(nodenum));
+            out.write(reinterpret_cast<char *>(&nodenum), sizeof(nodenum));
             out.close();
         } else{
-            in.read(reinterpret_cast<char *>(root), sizeof(root));
-            in.read(reinterpret_cast<char *>(nodenum), sizeof(nodenum));
+            in.read(reinterpret_cast<char *>(&root), sizeof(root));
+            in.read(reinterpret_cast<char *>(&nodenum), sizeof(nodenum));
         }
         in.close();
         io.open(file , ios::in | ios :: out | ios :: binary);
@@ -77,10 +77,11 @@ public:
     int search(int nod , const data &x);//return where can we insert x
     void update_son_fa(int son , int pa);
     void insert(int &pa , int lchild , int rchild , const data &x);
-    void checkpapa(node & pa);
+    void checkpapa(int pa);
     void insert(const data &x);
-    void erase_par(int nod);
+    //void erase_par(int nod);
     void erase(const data &x);
+    data findmin(int nod);
 };
 
 
