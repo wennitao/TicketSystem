@@ -9,6 +9,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "data.h"//size 即m为B+树阶数：最多有几个儿子
 
 using namespace std;
