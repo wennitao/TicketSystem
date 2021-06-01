@@ -24,7 +24,6 @@ public:
     const char _type, int _stationNum, int _seatNum, int *_prices, int *_travelTimes, int *_stopoverTimes) {
         memset (trainID, 0, sizeof trainID) ;
         memset (stations, 0, sizeof stations) ;
-        memset (stopoverTimes, 0, sizeof stopoverTimes) ;
 
         stationNum = _stationNum; seatNum = _seatNum; type = _type ;
         strcpy (trainID, _trainID) ;

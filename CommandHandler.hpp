@@ -368,7 +368,6 @@ public:
     }
 
     void query_train () {
-        if (par_cnt != 2) throw "command wrong format" ;
         const char *trainID, *date ;
         for (int i = 1; i <= par_cnt; i ++) {
             if (par_key[i][1] == 'i') trainID = par_val[i] ;
@@ -594,6 +593,7 @@ public:
         if (pos.empty()) throw "train not found" ;
         int train_file_pos = pos[0] ;
         train cur_train = train_read (pos[0]) ;
+        if (!cur_train.getReleaseStatus()) throw "not released" ;
         if (!cur_train.runningOnDate (date, startStationName)) throw "no trains run on this date" ;
         if (cur_train.getSeatNum() < ticketNum) throw "no enough seats" ;
 
