@@ -2,7 +2,7 @@
 *.out
 *.dat
 *.ans
-backend/data/*
+data/*
 
 frontend/flaskr/*.pyc
 frontend/flaskr/__pycache__/
