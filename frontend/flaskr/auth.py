@@ -67,6 +67,11 @@ def dataBase_login(username, password):
     else:
         return dataBase_queryUser (username)
 
+def dataBase_logout(username):
+    fileio = open ("command.in", "w")
+    fileio.write ("logout -u " + username)
+    fileio.close()
+    os.system ("./code < command.in > command.out")
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
@@ -99,8 +104,10 @@ def load_logged_in_user():
     
 @bp.route('/logout')
 def logout():
+    user_id = session.get('user_id')
+    dataBase_logout (user_id)
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
 
 def login_required(view):
     @functools.wraps(view)
