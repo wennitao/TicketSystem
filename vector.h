@@ -76,7 +76,6 @@ namespace sjtu {
             // if these two iterators point to different vectors, throw invaild_iterator.
             int operator-(const iterator &rhs) const {
                 //TODO
-                if (this->ptr != rhs.ptr)throw invalid_iterator();
                 int dist = this->pos - rhs.pos;
                 return (dist >= 0) ? dist : (-dist);
             }
@@ -188,7 +187,7 @@ namespace sjtu {
             // if these two iterators point to different vectors, throw invaild_iterator.
             int operator-(const const_iterator &rhs) const {
                 //TODO
-                if (this->ptr != rhs.ptr)throw invalid_iterator();
+                if (this->ptr != rhs.ptr)throw "wtf";
                 int dist = this->pos - rhs.pos;
                 return (dist >= 0) ? dist : (-dist);
             }
@@ -319,11 +318,11 @@ namespace sjtu {
          * throw index_out_of_bound if pos is not in [0, size)
          */
         T & at(const size_t &pos) {
-            if (pos < 0 || pos >= cur) throw index_out_of_bound();
+            if (pos < 0 || pos >= cur) throw "wtf";
             else return *(data[pos]);
         }
         const T & at(const size_t &pos) const {
-            if (pos < 0 || pos >= cur) throw index_out_of_bound();
+            if (pos < 0 || pos >= cur) throw "wtf";
             else return *(data[pos]);
         }
         /**
@@ -333,11 +332,11 @@ namespace sjtu {
          *   In STL this operator does not check the boundary but I want you to do.
          */
         T & operator[](const size_t &pos) {
-            if (pos < 0 || pos >= cur) throw index_out_of_bound();
+            if (pos < 0 || pos >= cur) throw "wtf";
             else return *(data[pos]);
         }
         const T & operator[](const size_t &pos) const {
-            if (pos < 0 || pos >= cur) throw index_out_of_bound();
+            if (pos < 0 || pos >= cur) throw "wtf";
             else return *(data[pos]);
         }
         /**
@@ -345,7 +344,7 @@ namespace sjtu {
          * throw container_is_empty if size == 0
          */
         const T & front() const {
-            if (this->cur == 0)throw container_is_empty();
+            if (this->cur == 0)throw "wtf";
             else return *(data[0]);
         }
         /**
@@ -353,7 +352,7 @@ namespace sjtu {
          * throw container_is_empty if size == 0
          */
         const T & back() const {
-            if (this->cur == 0)throw container_is_empty();
+            if (this->cur == 0)throw "wtf";
             else return *(data[cur - 1]);
         }
         /**
@@ -420,7 +419,7 @@ namespace sjtu {
          * throw index_out_of_bound if ind > size (in this situation ind can be size because after inserting the size will increase 1.)
          */
         iterator insert(const size_t &ind, const T &value) {
-            if (ind > cur) throw index_out_of_bound();
+            if (ind > cur) throw "wtf";
             for (int i = cur; i > ind; --i) {
                 data[i] = data[i - 1];
             }
@@ -449,7 +448,7 @@ namespace sjtu {
          * throw index_out_of_bound if ind >= size
          */
         iterator erase(const size_t &ind) {
-            if (ind >= cur)throw index_out_of_bound();
+            if (ind >= cur)throw "wtf";
             delete data[ind];
             for (int i = ind; i < cur - 1; ++i) {
                 data[i] = data[i + 1];
@@ -471,7 +470,7 @@ namespace sjtu {
          * throw container_is_empty if size() == 0
          */
         void pop_back() {
-            if (cur == 0)throw container_is_empty();
+            if (cur == 0)throw "wtf";
             delete data[cur - 1];
             data[cur - 1] = nullptr;
             cur--;

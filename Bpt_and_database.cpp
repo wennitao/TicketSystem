@@ -156,10 +156,10 @@ std::pair<int, int> Database::find(int nod, const data &x) {
         else return find(cur.son[pos + 1] , x);
     }
 };
-void Database::find(const data &x, vector<int> &cap) {
+void Database::find(const data &x, sjtu::vector<int> &cap) {
     find (root , x , cap);
 };
-void Database::find(int nod, const data &x, vector<int> &cap) {
+void Database::find(int nod, const data &x, sjtu::vector<int> &cap) {
 //    if (nod == -1) return;
 //    node cur = disk_read(nod);
 //    int pos = 0;

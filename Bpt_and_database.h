@@ -38,7 +38,7 @@ private:
         }
         void print();
     };
-    fstream io;
+    std::fstream io;
     char file_name[100];
     int root = -1;
     int nodenum = 0;//0-based
@@ -47,9 +47,9 @@ private:
 public:
     Database(const char* file){
         strcpy(file_name , file);
-        fstream in (file , ios :: in | ios :: binary);
+        std::fstream in (file , std::ios :: in | std::ios :: binary);
         if (!in.is_open()){
-            fstream out (file , ios :: out | ios :: binary);
+            std::fstream out (file , std::ios :: out | std::ios :: binary);
             out.write(reinterpret_cast<char *>(&root) , sizeof root);
             out.write(reinterpret_cast<char *>(&nodenum), sizeof(nodenum));
             out.close();
@@ -58,7 +58,7 @@ public:
             in.read(reinterpret_cast<char *>(&nodenum), sizeof(nodenum));
         }
         in.close();
-        io.open(file , ios::in | ios :: out | ios :: binary);
+        io.open(file , std::ios::in | std::ios :: out | std::ios :: binary);
     }
     ~Database(){
         io.close();
@@ -70,10 +70,10 @@ public:
     void disk_write(int pos , node &x);
     void update_root();
     std::pair<int , int> find(int nod , const data &x);
-    void find(int nod , const data &x , vector<int> &cap);
+    void find(int nod , const data &x , sjtu::vector<int> &cap);
     std::pair<int , int> find(const data &x);
     int findKey(const data &x);
-    void find (const data &x , vector<int>&cap);
+    void find (const data &x , sjtu::vector<int>&cap);
     int search(int nod , const data &x);//return where can we insert x
     void update_son_fa(int son , int pa);
     void insert(int &pa , int lchild , int rchild , const data &x);

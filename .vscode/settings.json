@@ -84,6 +84,14 @@
         "thread": "cpp",
         "typeindex": "cpp",
         "unordered_set": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "any": "cpp",
+        "*.tcc": "cpp",
+        "charconv": "cpp",
+        "codecvt": "cpp",
+        "cuchar": "cpp",
+        "memory_resource": "cpp",
+        "shared_mutex": "cpp",
+        "variant": "cpp"
     }
 }

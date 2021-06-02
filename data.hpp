@@ -4,30 +4,33 @@
 #include <cstdio>
 #include <cstring>
 
+#include "string.h"
+
 struct data {
-    char str[110]; int pos ;
+    string str; int pos ;
     data () {
-        memset (str, 0, sizeof str) ;
         pos = -1 ;
     }
     data (const char *_str, int p) {
-        memset (str, 0, sizeof str) ;
-        strcpy (str, _str) ;
+        str = string (_str) ;
         pos = p ;
+    }
+    data (const string _str, int p) {
+        str = _str; pos = p ;
     }
     void print() const {
         printf("str:%s pos:%d\n", str, pos) ;
     }
     bool operator < (const data &a) const {
-        if (strcmp (str, a.str) == 0) return pos < a.pos ;
-        return strcmp (str, a.str) < 0 ;
+        if (str == a.str) return pos < a.pos ;
+        return str < a.str ;
     }
     bool operator <= (const data &a) const {
-        if (strcmp (str, a.str) == 0) return pos <= a.pos ;
-        return strcmp (str, a.str) < 0 ;
+        if (str == a.str) return pos <= a.pos ;
+        return str < a.str ;
     }
     bool operator == (const data &a) const {
-        return strcmp (str, a.str) == 0 && pos == a.pos ;
+        return str == a.str && pos == a.pos ;
     }
 } ;
 
