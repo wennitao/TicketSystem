@@ -6,13 +6,12 @@
 #define TICKETSYSTEM_BPT_AND_DATABASE_H
 
 #include <cstring>
-#include <string>
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include "data.h"//size 即m为B+树阶数：最多有几个儿子
+#include "vector.h"
+#include "string.h"
+#include "data.hpp"//size 即m为B+树阶数：最多有几个儿子
 
-using namespace std;
 const int size = 5;
 const int maxkey = size - 1;//单个节点最多能存多少key
 class Database {
@@ -70,9 +69,9 @@ public:
     node disk_read(int pos);
     void disk_write(int pos , node &x);
     void update_root();
-    pair<int , int> find(int nod , const data &x);
+    std::pair<int , int> find(int nod , const data &x);
     void find(int nod , const data &x , vector<int> &cap);
-    pair<int , int> find(const data &x);
+    std::pair<int , int> find(const data &x);
     int findKey(const data &x);
     void find (const data &x , vector<int>&cap);
     int search(int nod , const data &x);//return where can we insert x

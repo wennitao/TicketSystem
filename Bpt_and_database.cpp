@@ -5,11 +5,11 @@
 #include "Bpt_and_database.h"
 #include <iostream>
 #include <cstring>
-#include <string>
-#include <vector>
-//#include "vector.h"
+#include "string.h"
+//#include <vector>
+#include "vector.h"
+#include <data.hpp>
 //using sjtu::vector;
-using namespace std;
 void insert_sort(data *a , int num , data Isert){//二分法插入排序
     int l = 0;
     int r = num - 1;
@@ -23,26 +23,26 @@ void insert_sort(data *a , int num , data Isert){//二分法插入排序
     }
     a[l] = Isert;
 }
-void Database::node::print() {
-    cout << "is_leaf: " << is_leaf << " keycnt: " << keycnt << " fa: " << fa << endl << "son: ";
-    for (int i = 0; i <= size; ++i) {
-        cout << son[i] << ' ' ;
-    }
-    cout << endl;
-    cout << "lbro: " << lbro << " rbro: " << rbro ;
-    cout << endl << "key: " << endl;
-    for (int i = 0; i < keycnt; ++i) {
-        cout << key[i].str << ' ' << key[i].pos << endl;
-    }
-}
+// void Database::node::print() {
+//     cout << "is_leaf: " << is_leaf << " keycnt: " << keycnt << " fa: " << fa << endl << "son: ";
+//     for (int i = 0; i <= size; ++i) {
+//         cout << son[i] << ' ' ;
+//     }
+//     cout << endl;
+//     cout << "lbro: " << lbro << " rbro: " << rbro ;
+//     cout << endl << "key: " << endl;
+//     for (int i = 0; i < keycnt; ++i) {
+//         cout << key[i].str << ' ' << key[i].pos << endl;
+//     }
+// }
 void Database::print() {
     print(root);
 };
 void Database::print(int nod) {
     node cur = disk_read(nod);
-    cout << "pos: " << nod << endl;
+    std::cout << "pos: " << nod << std::endl;
     cur.print();
-    cout << endl;
+    std::cout << std::endl;
     for (int i = 0; i <= cur.keycnt ; ++i) {//是 <=
         if (cur.son[i] != -1){
             print(cur.son[i]);
@@ -140,17 +140,17 @@ void Database::insert(int &pa, int lchild, int rchild, const data &x) {
         }
     }
 };
-pair<int, int> Database::find(const data &x) {
+std::pair<int, int> Database::find(const data &x) {
     return find(root , x);
 };
-pair<int, int> Database::find(int nod, const data &x) {
-    if (nod == -1)return make_pair(-1 , -1);
+std::pair<int, int> Database::find(int nod, const data &x) {
+    if (nod == -1)return std::make_pair(-1 , -1);
     node cur = disk_read(nod);//key[0]为空
     int pos = 0;
     for (;pos < cur.keycnt && cur.key[pos] < x ; pos++);
     if (cur.is_leaf){
-        if (pos < cur.keycnt && cur.key[pos] == x)return make_pair(nod , pos);
-        else return make_pair(-1 , -1);
+        if (pos < cur.keycnt && cur.key[pos] == x)return std::make_pair(nod , pos);
+        else return std::make_pair(-1 , -1);
     } else{
         if (pos == cur.keycnt || x < cur.key[pos])return find(cur.son[pos] , x);
         else return find(cur.son[pos + 1] , x);
@@ -382,7 +382,7 @@ void Database::checkpapa(int pa) {
     }
 }
 void Database::erase(const data &x) {
-    pair<int , int> pos = find(x);
+    std::pair<int, int> pos = find(x);
     if (pos.first == -1) throw "not found";//这个地方要不要改为返回？
     node cur = disk_read(pos.first);
     for (int i = pos.second; i < cur.keycnt - 1; ++i) {
@@ -502,24 +502,24 @@ void Database::erase(const data &x) {
 };
 
 Database::node Database::disk_read(int pos) {
-    io.seekg(pos + init_offset , ios::beg);
+    io.seekg(pos + init_offset , std::ios::beg);
     node cur;
     io.read(reinterpret_cast<char *>(&cur), sizeof(node));
     return cur;
 };//两个函数的作用都是跳过init_offset
 void Database::disk_write(int pos, node &x) {
-    io.seekp(pos + init_offset , ios::beg);
+    io.seekp(pos + init_offset , std::ios::beg);
     io.write(reinterpret_cast<char *>(&x) , sizeof(node));
 };
 
 int Database::findKey(const data &x) {
-    pair<int , int> pos = find(x);
+    std::pair<int, int> pos = find(x);
     if (pos.first == -1) return -1;
     node cur = disk_read(pos.first);
     return cur.key[pos.second].pos;
 };
 void Database::update_root() {
-    io.seekp(0 , ios::beg);
+    io.seekp(0 , std::ios::beg);
     io.write(reinterpret_cast<char *>(&root) , sizeof(int));
     io.write(reinterpret_cast<char *>(&nodenum) , sizeof(int));
 };
