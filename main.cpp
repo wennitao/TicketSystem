@@ -23,6 +23,7 @@ void init () {
 }
 
 int main() {
+    init () ;
     std::string op ;
     while (getline (std::cin, op)) {
         if (op == std::string ("exit")) {

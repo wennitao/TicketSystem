@@ -17,33 +17,32 @@ private:
     int len = 0;//记录字母个数，有一个记一个
 public:
     string(const char *ch){
+        memset (str, 0, sizeof str) ;
         int i = 0;
         while (ch[i] != '\0'){
             str[i] = ch[i];
             i++;
         }
-        len = i;
+        len = i ;
     }
     string(){
         memset(str , 0 , sizeof str);
         len = 0;
     }
     string(const string &ot){
+        memset (str, 0, sizeof str) ;
         for (int i = 0; i < ot.len; ++i) {
             str[i] = ot.str[i];
         }
-        len = ot.len;
+        len = ot.len; str[len] = 0 ;
     }
     string& operator=(const string &ot){
         if (this == &ot){
             return *this;
         }
-        for (int i = 0; i < len; ++i) {
-            str[i] = '\0';
-        }
+        memset (str, 0, sizeof str) ;
         len = ot.len;
-        strcpy(str , ot.str);
-        str[len] = '\0';
+        strcpy (str, ot.str);
         return *this;
     }
     void clear() {

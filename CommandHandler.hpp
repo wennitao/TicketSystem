@@ -28,11 +28,12 @@ public:
         int cur_len = 0 ;
         for (int i = 0; i < op.length(); i ++) {
             if (op[i] == ' ') {
-                key_cnt ++; cur_len = 0 ;
+                argument[key_cnt][cur_len ++] = 0; key_cnt ++; cur_len = 0 ;
             } else {
                 argument[key_cnt][cur_len ++] = op[i] ;
             }
         }
+        argument[key_cnt][cur_len ++] = 0 ;
     }
 
     user user_read (int pos) {
@@ -150,6 +151,8 @@ public:
         if (pos.empty()) throw "cur user not logged in" ;
         int cur_user_file_pos = pos[0] ;
         user cur_user = user_read (cur_user_file_pos) ;
+
+        printf("ok\n") ;
 
         pos.clear() ;
         users.find (data (username, 0), pos) ;
