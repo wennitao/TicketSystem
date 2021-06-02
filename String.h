@@ -46,6 +46,10 @@ public:
         str[len] = '\0';
         return *this;
     }
+    void clear() {
+        memset(str , 0 , sizeof str);
+        len = 0;
+    }
     bool operator<(const string &ot) const {
         return strcmp(this->str , ot.str) < 0;
     }

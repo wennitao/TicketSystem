@@ -4,11 +4,12 @@
 
 #include "Bpt_and_database.h"
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include "string.h"
 //#include <vector>
 #include "vector.h"
-#include <data.hpp>
+#include "data.hpp"
 //using sjtu::vector;
 void insert_sort(data *a , int num , data Isert){//二分法插入排序
     int l = 0;
@@ -49,6 +50,12 @@ void Database::print(int nod) {
         }
     }
 };
+bool Database::empty() {
+    return root == -1 || disk_read (root).keycnt == 0 ;
+}
+void Database::clear() {
+    root = -1; nodenum = 0 ;
+}
 void Database::insert(const data &x) {
     if (root == -1){
         node cur ;
@@ -195,7 +202,7 @@ void Database::find(int nod, const data &x, sjtu::vector<int> &cap) {
         cur = disk_read(cur.son[pos]);
     }
     int pos = 0;
-    while (strcmp(cur.key[pos].str , x.str) < 0){
+    while (cur.key[pos].str < x.str){
         if (pos == cur.keycnt - 1){
             if (cur.rbro != -1){cur = disk_read(cur.rbro);pos = 0;}
             else return;
@@ -210,7 +217,7 @@ void Database::find(int nod, const data &x, sjtu::vector<int> &cap) {
 //        cap.push_back(cur.key[pos].pos);
 //        pos++;
 //    }
-    while (strcmp(cur.key[pos].str , x.str) == 0){
+    while (cur.key[pos].str == x.str){
         cap.push_back(cur.key[pos].pos);
         if (pos == cur.keycnt - 1){
             if (cur.rbro != -1){
@@ -230,7 +237,8 @@ int Database::search(int nod, const data &x) {//find the leaf_node where can ins
     else return search(cur.son[pos + 1] , x);
 };
 void Database::clear(data &tmp) {
-    memset(tmp.str , 0 , sizeof(tmp.str));
+    tmp.str.clear() ;
+    // memset(tmp.str , 0 , sizeof(tmp.str));
     tmp.pos = -1;
 };
 data Database::findmin(int nod) {

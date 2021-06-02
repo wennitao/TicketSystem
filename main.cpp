@@ -25,8 +25,14 @@ void init () {
 int main() {
     std::string op ;
     while (getline (std::cin, op)) {
+        if (op == std::string ("exit")) {
+            printf("bye\n"); break ;
+        }
         CommandHandler cmd = CommandHandler (op) ;
-        cmd.analyze () ;
+        cmd.run () ;
     }
+
+    userio.close() ;
+    curUsers.clear() ;
     return 0 ;
 }

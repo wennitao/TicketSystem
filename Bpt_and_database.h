@@ -64,7 +64,9 @@ public:
         io.close();
     }
     void print(int nod);
-    void print();
+    void print() ;
+    bool empty() ;
+    void clear () ;
     void clear(data &tmp);
     node disk_read(int pos);
     void disk_write(int pos , node &x);
