@@ -225,7 +225,10 @@ public:
     }
 
     void logout () {
-        char *username = par_val[1] ;
+        char *username ;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 'u') username = par_val[i] ;
+        }
         logout (username) ;
     }
 
@@ -382,7 +385,10 @@ public:
     }
 
     void delete_train () {
-        const char *trainID = par_val[1] ;
+        char *trainID ;
+        for (int i = 1; i <= par_cnt; i ++) {
+            if (par_key[i][1] == 'i') trainID = par_val[i] ;
+        }
         vector<int> pos ;
         trains.find (my_data (trainID, 0), pos) ;
         if (pos.empty()) throw "train not found" ;
