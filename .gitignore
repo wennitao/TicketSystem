@@ -3,3 +3,9 @@
 *.dat
 *.ans
 data/*
+build/*
+CMakeFiles/*
+*.cmake
+CmakeCache.txt
+Makefile
+output.txt

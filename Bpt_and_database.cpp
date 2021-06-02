@@ -6,11 +6,12 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <vector>
 #include "string.h"
 //#include <vector>
 #include "vector.h"
 #include "data.hpp"
-//using sjtu::vector;
+//using std::vector;
 void insert_sort(data *a , int num , data Isert){//二分法插入排序
     int l = 0;
     int r = num - 1;
@@ -163,10 +164,10 @@ std::pair<int, int> Database::find(int nod, const data &x) {
         else return find(cur.son[pos + 1] , x);
     }
 };
-void Database::find(const data &x, sjtu::vector<int> &cap) {
+void Database::find(const data &x, std::vector<int> &cap) {
     find (root , x , cap);
 };
-void Database::find(int nod, const data &x, sjtu::vector<int> &cap) {
+void Database::find(int nod, const data &x, std::vector<int> &cap) {
 //    if (nod == -1) return;
 //    node cur = disk_read(nod);
 //    int pos = 0;

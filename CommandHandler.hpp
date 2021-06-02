@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <vector>
 
 #include "main.h"
 #include "Bpt_and_database.h"
@@ -89,7 +90,7 @@ public:
         if (users.empty()) {
             privilege = 10 ;
         } else {
-            sjtu::vector<int> pos ;
+            std::vector<int> pos ;
             curUsers.find (data (cur_username, 0), pos) ;
             if (pos.empty()) throw "cur user not logged in" ;
 
@@ -97,7 +98,7 @@ public:
             if (cur_user.getPrivilege() <= privilege) throw "invalid privilege" ;
         }
 
-        sjtu::vector<int> pos ;
+        std::vector<int> pos ;
         users.find (data (username, 0), pos) ;
         if (!pos.empty()) throw "user already exists" ;
         user new_user = user (username, password, name, mailAddr, privilege) ;
@@ -113,7 +114,7 @@ public:
             else if (argument[i][1] == 'p') password = string (argument[i + 1]) ;
         }
 
-        sjtu::vector<int> pos ;
+        std::vector<int> pos ;
         curUsers.find (data (username, 0), pos) ;
         if (!pos.empty()) throw "already logged in" ;
         users.find (data (username, 0), pos) ;
@@ -131,7 +132,7 @@ public:
         for (int i = 2; i <= key_cnt; i += 2) {
             if (argument[i][1] == 'u') username = string (argument[i + 1]) ;
         }
-        sjtu::vector<int> pos ;
+        std::vector<int> pos ;
         curUsers.find (data (username, 0), pos) ;
         if (pos.empty()) throw "cur user not logged in" ;
         int user_file_pos = pos[0] ;
@@ -146,13 +147,11 @@ public:
             else if (argument[i][1] == 'u') username = string (argument[i + 1]) ;
         }
 
-        sjtu::vector<int> pos ;
+        std::vector<int> pos ;
         curUsers.find (data (cur_username, 0), pos) ;
         if (pos.empty()) throw "cur user not logged in" ;
         int cur_user_file_pos = pos[0] ;
         user cur_user = user_read (cur_user_file_pos) ;
-
-        printf("ok\n") ;
 
         pos.clear() ;
         users.find (data (username, 0), pos) ;
@@ -176,7 +175,7 @@ public:
             else if (argument[i][1] == 'g') privilege = string (argument[i + 1]).toInt() ;
         }
 
-        sjtu::vector<int> pos ;
+        std::vector<int> pos ;
         curUsers.find (data (cur_username, 0), pos) ;
         if (pos.empty()) throw "user enot logged in" ;
         int cur_user_file_pos = pos[0] ;
@@ -192,7 +191,7 @@ public:
         if (privilege != -1 && privilege >= cur_user.getPrivilege()) throw "invalid privilege" ;
 
         if (!password.empty()) modify_user.modifyPassword (password) ;
-        if (!name.empty()) modify_user.modifyPassword (name) ;
+        if (!name.empty()) modify_user.modifyName (name) ;
         if (!mailAddr.empty()) modify_user.modifyMailAddress (mailAddr) ;
         if (privilege != -1) modify_user.modifyPrivilege (privilege) ;
         user_write (modify_user_file_pos, modify_user) ;
