@@ -81,9 +81,4 @@ public:
     }
 };
 
-std::ostream& operator << (std::ostream &out, const string &str) {
-    out << str.str ;
-    return out ;
-}
-
 #endif //CODE_ST_RING_H

@@ -3,4 +3,4 @@ project(code)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(code main.cpp ticket.hpp time.hpp train.hpp user.hpp CommandHandler.hpp Database/B+Tree.hpp Database/data.hpp)
+add_executable(code main.cpp data.hpp string.cpp user.hpp vector.h Bpt_and_database.cpp)

@@ -18,9 +18,9 @@ struct data {
     data (const string _str, int p) {
         str = _str; pos = p ;
     }
-    void print() const {
-        printf("str:%s pos:%d\n", str, pos) ;
-    }
+    // void print() const {
+    //     std::cout << str << " " << pos << std::endl ;
+    // }
     bool operator < (const data &a) const {
         if (str == a.str) return pos < a.pos ;
         return str < a.str ;

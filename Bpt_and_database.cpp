@@ -36,20 +36,20 @@ void insert_sort(data *a , int num , data Isert){//二分法插入排序
 //         cout << key[i].str << ' ' << key[i].pos << endl;
 //     }
 // }
-void Database::print() {
-    print(root);
-};
-void Database::print(int nod) {
-    node cur = disk_read(nod);
-    std::cout << "pos: " << nod << std::endl;
-    cur.print();
-    std::cout << std::endl;
-    for (int i = 0; i <= cur.keycnt ; ++i) {//是 <=
-        if (cur.son[i] != -1){
-            print(cur.son[i]);
-        }
-    }
-};
+// void Database::print() {
+//     print(root);
+// };
+// void Database::print(int nod) {
+//     node cur = disk_read(nod);
+//     std::cout << "pos: " << nod << std::endl;
+//     cur.print();
+//     std::cout << std::endl;
+//     for (int i = 0; i <= cur.keycnt ; ++i) {//是 <=
+//         if (cur.son[i] != -1){
+//             print(cur.son[i]);
+//         }
+//     }
+// };
 bool Database::empty() {
     return root == -1 || disk_read (root).keycnt == 0 ;
 }
