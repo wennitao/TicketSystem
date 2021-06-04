@@ -237,6 +237,11 @@ public:
             if (strcmp (stations[i], to) == 0) break ;
             if (flag) seat[days][i] -= sellSeatNum ;
         }
+
+        printf("sell seats days:%d\n", days) ;
+        for (int i = 1; i < stationNum; i ++)
+            printf("%d ", seat[days][i]) ;
+        printf("\n") ;
     }
 
     void addSeats (const Time &_date, const char *from, const char *to, int sellSeatNum) {
@@ -247,6 +252,11 @@ public:
             if (strcmp (stations[i], to) == 0) break ;
             if (flag) seat[days][i] += sellSeatNum ;
         }
+
+        printf("add seats days:%d\n", days) ;
+        for (int i = 1; i < stationNum; i ++)
+            printf("%d ", seat[days][i]) ;
+        printf("\n") ;
     }
 } ;
 
